@@ -2,6 +2,7 @@
 
 #include "WS_TCA9554PWR.h"
 #include <HardwareSerial.h>     // Reference the ESP32 built-in serial port library
+#include <stdlib.h>             // For malloc/free
 #include "WS_GPIO.h"
 
 
@@ -53,3 +54,4 @@ void Relay_Analysis(uint8_t *buf,uint8_t Mode_Flag);
 void Relay_Immediate(uint8_t CHx, bool State, uint8_t Mode_Flag);
 void Relay_Immediate_CHxs(uint8_t PinState, uint8_t Mode_Flag);
 void Relay_Immediate_CHxn(Status_adjustment * Relay_n, uint8_t Mode_Flag);
+void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms);

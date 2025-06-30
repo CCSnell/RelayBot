@@ -24,6 +24,7 @@ void handleSwitch5();
 void handleSwitch6();
 void handleSwitch7();
 void handleSwitch8();
+void handlePulseRelay();
 void WIFI_Init();
 void WIFI_Loop();
 void WebTask(void *parameter);
