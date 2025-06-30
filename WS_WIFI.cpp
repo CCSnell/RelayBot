@@ -37,17 +37,24 @@ void handleRoot() {
     "            border-radius: 5px;" +
     "            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);" +
     "        }" +
-    "        .input-container {//" +
+    "        .input-container {" +
     "            display: flex;" +
     "            align-items: center;" +
     "            margin-bottom: 10px;" +
     "        }" +
     "        .input-container label {" +
-    "            width: 80px;" + 
+    "            width: 50px;" + 
     "            margin-right: 10px;" +
     "        }" +
     "        .input-container input[type=\"text\"] {" +
-    "            flex: 1;" +
+    "            width: 80px;" +
+    "            padding: 5px;" +
+    "            border: 1px solid #ccc;" +
+    "            border-radius: 3px;" +
+    "            margin-right: 10px; "+ 
+    "        }" +
+    "        .input-container input[type=\"number\"] {" +
+    "            width: 80px;" +
     "            padding: 5px;" +
     "            border: 1px solid #ccc;" +
     "            border-radius: 3px;" +
@@ -57,12 +64,13 @@ void handleRoot() {
     "            padding: 5px 10px;" +
     "            background-color: #333;" +
     "            color: #fff;" +
-    "            font-size: 14px;" +
+    "            font-size: 12px;" +
     "            font-weight: bold;" +
     "            border: none;" +
     "            border-radius: 3px;" +
     "            text-transform: uppercase;" +
     "            cursor: pointer;" +
+    "            margin-right: 5px;" +
     "        }" +
     "        .button-container {" +
     "            margin-top: 20px;" +
@@ -127,6 +135,22 @@ void handleRoot() {
     "            }" +
     "            xhttp.send();" +
     "        }" +
+    "        function pulseRelay(channel) {" +
+    "            var timeInput = document.getElementById('time' + channel);" +
+    "            var pulseTime = parseInt(timeInput.value);" +
+    "            if (isNaN(pulseTime) || pulseTime < 10 || pulseTime > 10000) {" +
+    "                alert('Please enter a valid time between 10 and 10000 milliseconds');" +
+    "                return;" +
+    "            }" +
+    "            var xhttp = new XMLHttpRequest();" +
+    "            xhttp.onreadystatechange = function() {" +
+    "                if (this.readyState == 4 && this.status == 200) {" +
+    "                    console.log('Pulse started for channel ' + channel + ' with ' + pulseTime + 'ms');" +
+    "                }" +
+    "            };" +
+    "            xhttp.open('GET', '/PulseRelay?channel=' + channel + '&time=' + pulseTime, true);" +
+    "            xhttp.send();" +
+    "        }" +
     "        function updateData() {"
     "            var xhr = new XMLHttpRequest();"
     "            xhr.open('GET', '/getData', true);"
@@ -174,45 +198,61 @@ void handleRoot() {
     "        <a href=\"/RTC_Event\" id=\"rtcEventLink\" class=\"rtcEventActive\">RTC Event</a>" + 
     "    </nav>" +
     "    <div class=\"container\">"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input1\">CH1</label>"+
     "            <input type=\"text\" id=\"ch1\" />"+
-    "            <button value=\"Switch1\" id=\"btn1\" disabled onclick=\"ledSwitch(1)\">Button 1</button>"+
+    "            <button value=\"Switch1\" id=\"btn1\" disabled onclick=\"ledSwitch(1)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(1)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input2\">CH2</label>"+
     "            <input type=\"text\" id=\"ch2\" />"+
-    "            <button value=\"Switch2\" id=\"btn2\" disabled onclick=\"ledSwitch(2)\">Button 2</button>"+
+    "            <button value=\"Switch2\" id=\"btn2\" disabled onclick=\"ledSwitch(2)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(2)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input3\">CH3</label>"+
     "            <input type=\"text\" id=\"ch3\" />"+
-    "            <button value=\"Switch3\" id=\"btn3\" disabled onclick=\"ledSwitch(3)\">Button 3</button>"+
+    "            <button value=\"Switch3\" id=\"btn3\" disabled onclick=\"ledSwitch(3)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(3)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input4\">CH4</label>"+
     "            <input type=\"text\" id=\"ch4\" />"+
-    "            <button value=\"Switch4\" id=\"btn4\" disabled onclick=\"ledSwitch(4)\">Button 4</button>"+
+    "            <button value=\"Switch4\" id=\"btn4\" disabled onclick=\"ledSwitch(4)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(4)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input5\">CH5</label>"+
     "            <input type=\"text\" id=\"ch5\" />"+
-    "            <button value=\"Switch5\" id=\"btn5\" disabled onclick=\"ledSwitch(5)\">Button 5</button>"+
+    "            <button value=\"Switch5\" id=\"btn5\" disabled onclick=\"ledSwitch(5)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(5)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input6\">CH6</label>"+
     "            <input type=\"text\" id=\"ch6\" />"+
-    "            <button value=\"Switch6\" id=\"btn6\" disabled onclick=\"ledSwitch(6)\">Button 6</button>"+
+    "            <button value=\"Switch6\" id=\"btn6\" disabled onclick=\"ledSwitch(6)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(6)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input7\">CH7</label>"+
     "            <input type=\"text\" id=\"ch7\" />"+
-    "            <button value=\"Switch7\" id=\"btn7\" disabled onclick=\"ledSwitch(7)\">Button 7</button>"+
+    "            <button value=\"Switch7\" id=\"btn7\" disabled onclick=\"ledSwitch(7)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(7)\">Pulse</button>"+
     "        </div>"+
-    "        <div class=\"input-container\" style=\"margin-left: 140px;\">"+
+    "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input8\">CH8</label>"+
     "            <input type=\"text\" id=\"ch8\" />"+
-    "            <button value=\"Switch8\" id=\"btn8\" disabled onclick=\"ledSwitch(8)\">Button 8</button>"+
+    "            <button value=\"Switch8\" id=\"btn8\" disabled onclick=\"ledSwitch(8)\">Toggle</button>"+
+    "            <input type=\"number\" id=\"time8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "            <button onclick=\"pulseRelay(8)\">Pulse</button>"+
     "        </div>"+
     "        <div class=\"button-container\">"+
     "            <button value=\"AllOn\" id=\"btn9\" disabled onclick=\"ledSwitch(9)\">All On</button>"+
@@ -559,6 +599,20 @@ void handleSwitch8() { handleSwitch(8); }
 void handleSwitch9() { handleSwitch(9); }
 void handleSwitch0() { handleSwitch(0); }
 
+void handlePulseRelay() {
+  if (server.hasArg("channel") && server.hasArg("time")) {
+    uint8_t channel = server.arg("channel").toInt();
+    uint32_t pulse_time = server.arg("time").toInt();
+    
+    printf("Pulse request: CH%d, time=%dms\r\n", channel, pulse_time);
+    Relay_Pulse(channel, pulse_time);
+    
+    server.send(200, "text/plain", "Pulse operation started");
+  } else {
+    server.send(400, "text/plain", "Missing channel or time parameter");
+  }
+}
+
 void handleNewEvent(void) {
   char Text[200];
   if (server.hasArg("data")) {
@@ -653,6 +707,7 @@ void WIFI_Init()
   server.on("/Switch8", handleSwitch8);
   server.on("/AllOn"  , handleSwitch9);
   server.on("/AllOff" , handleSwitch0);
+  server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);

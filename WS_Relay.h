@@ -53,3 +53,4 @@ void Relay_Analysis(uint8_t *buf,uint8_t Mode_Flag);
 void Relay_Immediate(uint8_t CHx, bool State, uint8_t Mode_Flag);
 void Relay_Immediate_CHxs(uint8_t PinState, uint8_t Mode_Flag);
 void Relay_Immediate_CHxn(Status_adjustment * Relay_n, uint8_t Mode_Flag);
+void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms);

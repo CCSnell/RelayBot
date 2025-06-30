@@ -269,3 +269,90 @@ void Relay_Immediate_CHxs(uint8_t PinState, uint8_t Mode_Flag)
     Failure_Flag = 1;
   }
 }
+
+// Structure to pass parameters to pulse task
+typedef struct {
+  uint8_t CHx;
+  uint32_t pulse_time_ms;
+} PulseTaskParams;
+
+// Task function for relay pulse operation
+void RelayPulseTask(void *parameter) {
+  PulseTaskParams *params = (PulseTaskParams *)parameter;
+  uint8_t CHx = params->CHx;
+  uint32_t pulse_time_ms = params->pulse_time_ms;
+  
+  printf("Starting pulse operation for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
+  
+  // Perform two ON-OFF cycles
+  for (int cycle = 0; cycle < 2; cycle++) {
+    // Turn relay ON
+    if (Relay_CHx(CHx, true)) {
+      Relay_Flag[CHx-1] = true;
+      printf("|***  Relay CH%d pulse ON (cycle %d) ***|\r\n", CHx, cycle + 1);
+    }
+    vTaskDelay(pdMS_TO_TICKS(pulse_time_ms));
+    
+    // Turn relay OFF
+    if (Relay_CHx(CHx, false)) {
+      Relay_Flag[CHx-1] = false;
+      printf("|***  Relay CH%d pulse OFF (cycle %d) ***|\r\n", CHx, cycle + 1);
+    }
+    vTaskDelay(pdMS_TO_TICKS(pulse_time_ms));
+  }
+  
+  printf("Pulse operation completed for CH%d\r\n", CHx);
+  Buzzer_Open_Time(200, 0);
+  
+  // Free the parameter memory and delete the task
+  free(params);
+  vTaskDelete(NULL);
+}
+
+void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms)
+{
+  if (!CHx || CHx > 8) {
+    printf("Relay_Pulse(function): Invalid channel number %d\r\n", CHx);
+    Failure_Flag = 1;
+    return;
+  }
+  
+  if (pulse_time_ms < 10 || pulse_time_ms > 10000) {
+    printf("Relay_Pulse(function): Invalid pulse time %dms (must be 10-10000ms)\r\n", pulse_time_ms);
+    Failure_Flag = 1;
+    return;
+  }
+  
+  // Allocate memory for task parameters
+  PulseTaskParams *params = (PulseTaskParams *)malloc(sizeof(PulseTaskParams));
+  if (params == NULL) {
+    printf("Relay_Pulse(function): Failed to allocate memory for task parameters\r\n");
+    Failure_Flag = 1;
+    return;
+  }
+  
+  params->CHx = CHx;
+  params->pulse_time_ms = pulse_time_ms;
+  
+  // Create a new FreeRTOS task for the pulse operation
+  char taskName[20];
+  sprintf(taskName, "PulseCH%d", CHx);
+  
+  BaseType_t result = xTaskCreatePinnedToCore(
+    RelayPulseTask,
+    taskName,
+    4096,
+    params,
+    2,  // Priority lower than RelayFailTask (3) but higher than WebTask (1)
+    NULL,
+    0
+  );
+  
+  if (result != pdPASS) {
+    printf("Relay_Pulse(function): Failed to create pulse task for CH%d\r\n", CHx);
+    free(params);
+    Failure_Flag = 1;
+  } else {
+    printf("Pulse task created for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
+  }
+}
