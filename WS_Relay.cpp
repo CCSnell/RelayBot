@@ -1,6 +1,7 @@
 #include "WS_Relay.h"
 
 bool Failure_Flag = 0;
+uint32_t Preset_Pulse_Times[8] = {500, 500, 500, 500, 500, 500, 500, 500};  // Default 500ms for all channels
 /*************************************************************  Relay I/O  *************************************************************/
 bool Relay_Open(uint8_t CHx)
 {

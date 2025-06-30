@@ -91,6 +91,63 @@ void handleRoot() {
     "        .button-container button:hover {" +
     "            background-color: #555;" +
     "        }" +
+    "        .preset-controls {" +
+    "            margin-bottom: 20px;" +
+    "            padding: 15px;" +
+    "            background-color: #f9f9f9;" +
+    "            border-radius: 5px;" +
+    "            border: 1px solid #ddd;" +
+    "        }" +
+    "        .preset-controls h3 {" +
+    "            margin-top: 0;" +
+    "            margin-bottom: 15px;" +
+    "            color: #333;" +
+    "        }" +
+    "        .lock-controls {" +
+    "            text-align: center;" +
+    "            margin-bottom: 15px;" +
+    "        }" +
+    "        .lock-controls button {" +
+    "            padding: 8px 16px;" +
+    "            background-color: #007bff;" +
+    "            color: white;" +
+    "            border: none;" +
+    "            border-radius: 4px;" +
+    "            cursor: pointer;" +
+    "            font-size: 14px;" +
+    "            margin: 0 5px;" +
+    "        }" +
+    "        .lock-controls button:hover {" +
+    "            background-color: #0056b3;" +
+    "        }" +
+    "        .preset-row {" +
+    "            display: flex;" +
+    "            align-items: center;" +
+    "            margin-bottom: 8px;" +
+    "        }" +
+    "        .preset-row label {" +
+    "            width: 50px;" +
+    "            margin-right: 10px;" +
+    "        }" +
+    "        .preset-row input {" +
+    "            width: 80px;" +
+    "            padding: 4px;" +
+    "            border: 1px solid #ccc;" +
+    "            border-radius: 3px;" +
+    "            margin-right: 10px;" +
+    "        }" +
+    "        .preset-row button {" +
+    "            padding: 4px 8px;" +
+    "            background-color: #28a745;" +
+    "            color: white;" +
+    "            border: none;" +
+    "            border-radius: 3px;" +
+    "            cursor: pointer;" +
+    "            font-size: 12px;" +
+    "        }" +
+    "        .preset-row button:hover {" +
+    "            background-color: #218838;" +
+    "        }" +
     "        nav {" +
     "            margin: 15px 0;" +
     "            text-align: center;" +
@@ -137,19 +194,71 @@ void handleRoot() {
     "        }" +
     "        function pulseRelay(channel) {" +
     "            var timeInput = document.getElementById('time' + channel);" +
-    "            var pulseTime = parseInt(timeInput.value);" +
-    "            if (isNaN(pulseTime) || pulseTime < 10 || pulseTime > 10000) {" +
-    "                alert('Please enter a valid time between 10 and 10000 milliseconds');" +
+    "            var pulseTime = timeInput.value ? parseInt(timeInput.value) : null;" +
+    "            var url = '/PulseRelay?channel=' + channel;" +
+    "            if (pulseTime !== null && !isNaN(pulseTime)) {" +
+    "                if (pulseTime < 10 || pulseTime > 10000) {" +
+    "                    alert('Please enter a valid time between 10 and 10000 milliseconds');" +
+    "                    return;" +
+    "                }" +
+    "                url += '&time=' + pulseTime;" +
+    "            }" +
+    "            var xhttp = new XMLHttpRequest();" +
+    "            xhttp.onreadystatechange = function() {" +
+    "                if (this.readyState == 4 && this.status == 200) {" +
+    "                    console.log('Pulse started for channel ' + channel);" +
+    "                }" +
+    "            };" +
+    "            xhttp.open('GET', url, true);" +
+    "            xhttp.send();" +
+    "        }" +
+    "        function lockPresets() {" +
+    "            var isLocked = true;" +
+    "            for (var i = 1; i <= 8; i++) {" +
+    "                var presetInput = document.getElementById('preset' + i);" +
+    "                if (presetInput) presetInput.disabled = isLocked;" +
+    "            }" +
+    "            document.getElementById('lockBtn').style.display = 'none';" +
+    "            document.getElementById('unlockBtn').style.display = 'inline-block';" +
+    "        }" +
+    "        function unlockPresets() {" +
+    "            var isLocked = false;" +
+    "            for (var i = 1; i <= 8; i++) {" +
+    "                var presetInput = document.getElementById('preset' + i);" +
+    "                if (presetInput) presetInput.disabled = isLocked;" +
+    "            }" +
+    "            document.getElementById('lockBtn').style.display = 'inline-block';" +
+    "            document.getElementById('unlockBtn').style.display = 'none';" +
+    "        }" +
+    "        function savePresetTime(channel) {" +
+    "            var presetInput = document.getElementById('preset' + channel);" +
+    "            var presetTime = parseInt(presetInput.value);" +
+    "            if (isNaN(presetTime) || presetTime < 10 || presetTime > 10000) {" +
+    "                alert('Please enter a valid preset time between 10 and 10000 milliseconds');" +
     "                return;" +
     "            }" +
     "            var xhttp = new XMLHttpRequest();" +
     "            xhttp.onreadystatechange = function() {" +
     "                if (this.readyState == 4 && this.status == 200) {" +
-    "                    console.log('Pulse started for channel ' + channel + ' with ' + pulseTime + 'ms');" +
+    "                    console.log('Preset time saved for channel ' + channel);" +
     "                }" +
     "            };" +
-    "            xhttp.open('GET', '/PulseRelay?channel=' + channel + '&time=' + pulseTime, true);" +
+    "            xhttp.open('GET', '/SetPresetTime?channel=' + channel + '&time=' + presetTime, true);" +
     "            xhttp.send();" +
+    "        }" +
+    "        function loadPresetTimes() {" +
+    "            var xhr = new XMLHttpRequest();" +
+    "            xhr.open('GET', '/GetPresetTimes', true);" +
+    "            xhr.onreadystatechange = function() {" +
+    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
+    "                    var presetArray = JSON.parse(xhr.responseText);" +
+    "                    for (var i = 0; i < presetArray.length; i++) {" +
+    "                        var presetInput = document.getElementById('preset' + (i + 1));" +
+    "                        if (presetInput) presetInput.value = presetArray[i];" +
+    "                    }" +
+    "                }" +
+    "            };" +
+    "            xhr.send();" +
     "        }" +
     "        function updateData() {"
     "            var xhr = new XMLHttpRequest();"
@@ -157,38 +266,39 @@ void handleRoot() {
     "            xhr.onreadystatechange = function() {"
     "              if (xhr.readyState === 4 && xhr.status === 200) {"
     "                var dataArray = JSON.parse(xhr.responseText);"
-    "                document.getElementById('ch1').value = dataArray[0];"
-    "                document.getElementById('ch2').value = dataArray[1];"
-    "                document.getElementById('ch3').value = dataArray[2];"
-    "                document.getElementById('ch4').value = dataArray[3];"
-    "                document.getElementById('ch5').value = dataArray[4];"
-    "                document.getElementById('ch6').value = dataArray[5];"
-    "                document.getElementById('ch7').value = dataArray[6];"
-    "                document.getElementById('ch8').value = dataArray[7];"
+    "                document.getElementById('ch1').value = dataArray[0];" +
+    "                document.getElementById('ch2').value = dataArray[1];" +
+    "                document.getElementById('ch3').value = dataArray[2];" +
+    "                document.getElementById('ch4').value = dataArray[3];" +
+    "                document.getElementById('ch5').value = dataArray[4];" +
+    "                document.getElementById('ch6').value = dataArray[5];" +
+    "                document.getElementById('ch7').value = dataArray[6];" +
+    "                document.getElementById('ch8').value = dataArray[7];" +
     // "                // Remove the button's disabled attribute to make it clickable"+
-    "                document.getElementById('btn1').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn2').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn3').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn4').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn5').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn6').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn7').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn8').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn9').removeAttribute(\'disabled\');"+
-    "                document.getElementById('btn0').removeAttribute(\'disabled\');"+
-    "              }"+
-    "            };"+
-    "            xhr.send();"+
-    "        }"+
-    "        function displayErrorTextBox(show) {"+
-    "          var errorTextbox = document.getElementById('errorTextbox');"+
-    "          errorTextbox.style.display = show ? 'block' : 'none';"+
-    "        }"+
-    "        function resetErrorTextBox() {"+
-    "          document.getElementById(\'errorTextbox\').value = \'\';"+
-    "        }"+
-    "        var refreshInterval = 200;"+                                     
-    "        setInterval(updateData, refreshInterval);"+       
+    "                document.getElementById('btn1').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn2').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn3').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn4').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn5').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn6').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn7').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn8').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn9').removeAttribute(\'disabled\');" +
+    "                document.getElementById('btn0').removeAttribute(\'disabled\');" +
+    "              }" +
+    "            };" +
+    "            xhr.send();" +
+    "        }" +
+    "        function displayErrorTextBox(show) {" +
+    "          var errorTextbox = document.getElementById('errorTextbox');" +
+    "          errorTextbox.style.display = show ? 'block' : 'none';" +
+    "        }" +
+    "        function resetErrorTextBox() {" +
+    "          document.getElementById(\'errorTextbox\').value = \'\';" +
+    "        }" +
+    "        var refreshInterval = 200;" +                                     
+    "        setInterval(updateData, refreshInterval);" +
+    "        window.onload = function() { loadPresetTimes(); };" +
     "    </script>" +
     "    <div class=\"header\">"+
     "        <h1>ESP32-S3-POE-ETH-8DI-8RO</h1>"+
@@ -198,6 +308,53 @@ void handleRoot() {
     "        <a href=\"/RTC_Event\" id=\"rtcEventLink\" class=\"rtcEventActive\">RTC Event</a>" + 
     "    </nav>" +
     "    <div class=\"container\">"+
+    "        <div class=\"preset-controls\">"+
+    "            <h3>Preset Pulse Times</h3>"+
+    "            <div class=\"lock-controls\">"+
+    "                <button id=\"lockBtn\" onclick=\"lockPresets()\">Lock</button>"+
+    "                <button id=\"unlockBtn\" onclick=\"unlockPresets()\" style=\"display: none;\">Unlock</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH1:</label>"+
+    "                <input type=\"number\" id=\"preset1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(1)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH2:</label>"+
+    "                <input type=\"number\" id=\"preset2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(2)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH3:</label>"+
+    "                <input type=\"number\" id=\"preset3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(3)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH4:</label>"+
+    "                <input type=\"number\" id=\"preset4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(4)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH5:</label>"+
+    "                <input type=\"number\" id=\"preset5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(5)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH6:</label>"+
+    "                <input type=\"number\" id=\"preset6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(6)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH7:</label>"+
+    "                <input type=\"number\" id=\"preset7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(7)\">Save</button>"+
+    "            </div>"+
+    "            <div class=\"preset-row\">"+
+    "                <label>CH8:</label>"+
+    "                <input type=\"number\" id=\"preset8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <button onclick=\"savePresetTime(8)\">Save</button>"+
+    "            </div>"+
+    "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input1\">CH1</label>"+
     "            <input type=\"text\" id=\"ch1\" />"+
@@ -600,17 +757,59 @@ void handleSwitch9() { handleSwitch(9); }
 void handleSwitch0() { handleSwitch(0); }
 
 void handlePulseRelay() {
-  if (server.hasArg("channel") && server.hasArg("time")) {
+  if (server.hasArg("channel")) {
     uint8_t channel = server.arg("channel").toInt();
-    uint32_t pulse_time = server.arg("time").toInt();
+    uint32_t pulse_time;
+    
+    // Use preset time if time parameter is not provided or is empty
+    if (server.hasArg("time") && server.arg("time").length() > 0) {
+      pulse_time = server.arg("time").toInt();
+    } else {
+      // Use preset time for the channel (channel 1-8, array index 0-7)
+      if (channel >= 1 && channel <= 8) {
+        pulse_time = Preset_Pulse_Times[channel - 1];
+      } else {
+        server.send(400, "text/plain", "Invalid channel number");
+        return;
+      }
+    }
     
     printf("Pulse request: CH%d, time=%dms\r\n", channel, pulse_time);
     Relay_Pulse(channel, pulse_time);
     
     server.send(200, "text/plain", "Pulse operation started");
   } else {
+    server.send(400, "text/plain", "Missing channel parameter");
+  }
+}
+
+void handleSetPresetTime() {
+  if (server.hasArg("channel") && server.hasArg("time")) {
+    uint8_t channel = server.arg("channel").toInt();
+    uint32_t preset_time = server.arg("time").toInt();
+    
+    if (channel >= 1 && channel <= 8 && preset_time >= 10 && preset_time <= 10000) {
+      Preset_Pulse_Times[channel - 1] = preset_time;
+      printf("Preset time set: CH%d = %dms\r\n", channel, preset_time);
+      server.send(200, "text/plain", "Preset time saved");
+    } else {
+      server.send(400, "text/plain", "Invalid channel or time value");
+    }
+  } else {
     server.send(400, "text/plain", "Missing channel or time parameter");
   }
+}
+
+void handleGetPresetTimes() {
+  String json = "[";
+  for (int i = 0; i < 8; i++) {
+    json += String(Preset_Pulse_Times[i]);
+    if (i < 7) {
+      json += ",";
+    }
+  }
+  json += "]";
+  server.send(200, "application/json", json);
 }
 
 void handleNewEvent(void) {
@@ -708,6 +907,8 @@ void WIFI_Init()
   server.on("/AllOn"  , handleSwitch9);
   server.on("/AllOff" , handleSwitch0);
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
+  server.on("/SetPresetTime", handleSetPresetTime);  // Set preset pulse time
+  server.on("/GetPresetTimes", handleGetPresetTimes);  // Get preset pulse times
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);
