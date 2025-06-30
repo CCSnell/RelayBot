@@ -2,6 +2,7 @@
 
 #include "WS_TCA9554PWR.h"
 #include <HardwareSerial.h>     // Reference the ESP32 built-in serial port library
+#include <stdlib.h>             // For malloc/free
 #include "WS_GPIO.h"
 
 
