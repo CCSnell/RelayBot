@@ -29,6 +29,8 @@ void handleSwitch6();
 void handleSwitch7();
 void handleSwitch8();
 void handlePulseRelay();
+void handleSetChannelPulseSettings();
+void handleGetChannelPulseSettings();
 void handleSetMainLock();
 void handleGetInputStates();
 void WIFI_Init();
