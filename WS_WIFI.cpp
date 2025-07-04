@@ -366,6 +366,7 @@ void handleRoot() {
     "            }" +
     "        }" +
     "        function updateRelayButtons() {" +
+    "            // This is called after getData to handle relay button states" +
     "            var xhr = new XMLHttpRequest();" +
     "            xhr.open('GET', '/GetInputStates', true);" +
     "            xhr.onreadystatechange = function() {" +
@@ -373,11 +374,21 @@ void handleRoot() {
     "                    var data = JSON.parse(xhr.responseText);" +
     "                    var isLocked = data.locked;" +
     "                    // Enable/disable relay control buttons based on lock state" +
-    "                    for (var i = 1; i <= 8; i++) {" +
-    "                        document.getElementById('btn' + i).disabled = isLocked;" +
+    "                    if (isLocked) {" +
+    "                        // If locked, disable relay buttons" +
+    "                        for (var i = 1; i <= 8; i++) {" +
+    "                            document.getElementById('btn' + i).disabled = true;" +
+    "                        }" +
+    "                        document.getElementById('btn9').disabled = true;" +  // All On
+    "                        document.getElementById('btn0').disabled = true;" +  // All Off
+    "                    } else {" +
+    "                        // If unlocked, enable relay buttons" +
+    "                        for (var i = 1; i <= 8; i++) {" +
+    "                            document.getElementById('btn' + i).disabled = false;" +
+    "                        }" +
+    "                        document.getElementById('btn9').disabled = false;" +  // All On
+    "                        document.getElementById('btn0').disabled = false;" +  // All Off
     "                    }" +
-    "                    document.getElementById('btn9').disabled = isLocked;" +  // All On
-    "                    document.getElementById('btn0').disabled = isLocked;" +  // All Off
     "                }" +
     "            };" +
     "            xhr.send();" +
@@ -853,6 +864,13 @@ void handleGetData() {
 }
 
 void handleSwitch(uint8_t ledNumber) {
+  // Check if main controls are locked (except for pulse operations)
+  if (Main_Lock_State && (ledNumber >= 0 && ledNumber <= 9)) {
+    server.send(403, "text/plain", "Main controls are locked");
+    printf("Switch operation blocked - main controls locked\r\n");
+    return;
+  }
+  
   uint8_t Data[1]={0};
   Data[0]=ledNumber+48;
   Relay_Analysis(Data,WIFI_Mode);
