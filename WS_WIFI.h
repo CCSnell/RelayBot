@@ -29,12 +29,15 @@ void handleSwitch6();
 void handleSwitch7();
 void handleSwitch8();
 void handlePulseRelay();
+void handleSetChannelPulseSettings();
+void handleGetChannelPulseSettings();
 void handleSetMainLock();
 void handleGetInputStates();
 void WIFI_Init();
 void WIFI_Loop();
 void WebTask(void *parameter);
-void loadPresetTimesFromNVS();
-void savePresetTimeToNVS(uint8_t channel, uint32_t time);
+void loadChannelPulseSettingsFromNVS();
+void saveChannelPulseDurationToNVS(uint8_t channel, uint32_t duration);
+void saveChannelPulseCountToNVS(uint8_t channel, uint32_t count);
 
 bool parseData(const char* Text, datetime_t* dt, Status_adjustment* Relay, Repetition_event* cycleEvent) ;
