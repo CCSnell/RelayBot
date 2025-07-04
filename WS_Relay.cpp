@@ -1,7 +1,8 @@
 #include "WS_Relay.h"
 
 bool Failure_Flag = 0;
-uint32_t Preset_Pulse_Times[8] = {500, 500, 500, 500, 500, 500, 500, 500};  // Default 500ms for all channels
+uint32_t Channel_Pulse_Durations[8] = {500, 500, 500, 500, 500, 500, 500, 500};  // Default 500ms pulse duration for all channels  
+uint32_t Channel_Pulse_Counts[8] = {2, 2, 2, 2, 2, 2, 2, 2};  // Default 2 pulse cycles for all channels
 /*************************************************************  Relay I/O  *************************************************************/
 bool Relay_Open(uint8_t CHx)
 {
@@ -275,6 +276,7 @@ void Relay_Immediate_CHxs(uint8_t PinState, uint8_t Mode_Flag)
 typedef struct {
   uint8_t CHx;
   uint32_t pulse_time_ms;
+  uint32_t pulse_count;
 } PulseTaskParams;
 
 // Task function for relay pulse operation
@@ -282,11 +284,12 @@ void RelayPulseTask(void *parameter) {
   PulseTaskParams *params = (PulseTaskParams *)parameter;
   uint8_t CHx = params->CHx;
   uint32_t pulse_time_ms = params->pulse_time_ms;
+  uint32_t pulse_count = params->pulse_count;
   
-  printf("Starting pulse operation for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
+  printf("Starting pulse operation for CH%d with %dms timing and %d cycles\r\n", CHx, pulse_time_ms, pulse_count);
   
-  // Perform two ON-OFF cycles
-  for (int cycle = 0; cycle < 2; cycle++) {
+  // Perform the specified number of ON-OFF cycles
+  for (uint32_t cycle = 0; cycle < pulse_count; cycle++) {
     // Turn relay ON
     if (Relay_CHx(CHx, true)) {
       Relay_Flag[CHx-1] = true;
@@ -324,6 +327,9 @@ void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms)
     return;
   }
   
+  // Use the channel's configured pulse count
+  uint32_t pulse_count = Channel_Pulse_Counts[CHx - 1];
+  
   // Allocate memory for task parameters
   PulseTaskParams *params = (PulseTaskParams *)malloc(sizeof(PulseTaskParams));
   if (params == NULL) {
@@ -334,6 +340,7 @@ void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms)
   
   params->CHx = CHx;
   params->pulse_time_ms = pulse_time_ms;
+  params->pulse_count = pulse_count;
   
   // Create a new FreeRTOS task for the pulse operation
   char taskName[20];
@@ -354,6 +361,6 @@ void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms)
     free(params);
     Failure_Flag = 1;
   } else {
-    printf("Pulse task created for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
+    printf("Pulse task created for CH%d with %dms timing and %d cycles\r\n", CHx, pulse_time_ms, pulse_count);
   }
 }

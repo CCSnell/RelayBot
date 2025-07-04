@@ -150,6 +150,40 @@ void handleRoot() {
     "        .preset-row button:hover {" +
     "            background-color: #218838;" +
     "        }" +
+    "        .channel-row {" +
+    "            display: flex;" +
+    "            align-items: center;" +
+    "            margin-bottom: 8px;" +
+    "        }" +
+    "        .channel-row label {" +
+    "            width: 50px;" +
+    "            margin-right: 10px;" +
+    "        }" +
+    "        .channel-row input {" +
+    "            width: 80px;" +
+    "            padding: 4px;" +
+    "            border: 1px solid #ccc;" +
+    "            border-radius: 3px;" +
+    "            margin-right: 10px;" +
+    "        }" +
+    "        .channel-row button {" +
+    "            padding: 4px 8px;" +
+    "            background-color: #28a745;" +
+    "            color: white;" +
+    "            border: none;" +
+    "            border-radius: 3px;" +
+    "            cursor: pointer;" +
+    "            font-size: 12px;" +
+    "        }" +
+    "        .channel-row button:hover {" +
+    "            background-color: #218838;" +
+    "        }" +
+    "        .settings-header {" +
+    "            font-weight: bold;" +
+    "            margin-bottom: 10px;" +
+    "            font-size: 12px;" +
+    "            color: #666;" +
+    "        }" +
     "        nav {" +
     "            margin: 15px 0;" +
     "            text-align: center;" +
@@ -268,49 +302,66 @@ void handleRoot() {
     "            xhttp.open('GET', url, true);" +
     "            xhttp.send();" +
     "        }" +
-    "        function lockPresets() {" +
+    "        function lockChannelSettings() {" +
     "            var isLocked = true;" +
     "            for (var i = 1; i <= 8; i++) {" +
-    "                var presetInput = document.getElementById('preset' + i);" +
-    "                if (presetInput) presetInput.disabled = isLocked;" +
+    "                var durationInput = document.getElementById('duration' + i);" +
+    "                var countInput = document.getElementById('count' + i);" +
+    "                if (durationInput) durationInput.disabled = isLocked;" +
+    "                if (countInput) countInput.disabled = isLocked;" +
     "            }" +
     "            document.getElementById('lockBtn').style.display = 'none';" +
     "            document.getElementById('unlockBtn').style.display = 'inline-block';" +
     "        }" +
-    "        function unlockPresets() {" +
+    "        function unlockChannelSettings() {" +
     "            var isLocked = false;" +
     "            for (var i = 1; i <= 8; i++) {" +
-    "                var presetInput = document.getElementById('preset' + i);" +
-    "                if (presetInput) presetInput.disabled = isLocked;" +
+    "                var durationInput = document.getElementById('duration' + i);" +
+    "                var countInput = document.getElementById('count' + i);" +
+    "                if (durationInput) durationInput.disabled = isLocked;" +
+    "                if (countInput) countInput.disabled = isLocked;" +
     "            }" +
     "            document.getElementById('lockBtn').style.display = 'inline-block';" +
     "            document.getElementById('unlockBtn').style.display = 'none';" +
     "        }" +
-    "        function savePresetTime(channel) {" +
-    "            var presetInput = document.getElementById('preset' + channel);" +
-    "            var presetTime = parseInt(presetInput.value);" +
-    "            if (isNaN(presetTime) || presetTime < 10 || presetTime > 10000) {" +
-    "                alert('Please enter a valid preset time between 10 and 10000 milliseconds');" +
+    "        function saveChannelSettings(channel) {" +
+    "            var durationInput = document.getElementById('duration' + channel);" +
+    "            var countInput = document.getElementById('count' + channel);" +
+    "            var duration = parseInt(durationInput.value);" +
+    "            var count = parseInt(countInput.value);" +
+    "            " +
+    "            var hasValidDuration = !isNaN(duration) && duration >= 10 && duration <= 10000;" +
+    "            var hasValidCount = !isNaN(count) && count >= 1 && count <= 10;" +
+    "            " +
+    "            if (!hasValidDuration && !hasValidCount) {" +
+    "                alert('Please enter valid duration (10-10000ms) and/or count (1-10 cycles)');" +
     "                return;" +
     "            }" +
+    "            " +
+    "            var url = '/SetChannelPulseSettings?channel=' + channel;" +
+    "            if (hasValidDuration) url += '&duration=' + duration;" +
+    "            if (hasValidCount) url += '&count=' + count;" +
+    "            " +
     "            var xhttp = new XMLHttpRequest();" +
     "            xhttp.onreadystatechange = function() {" +
     "                if (this.readyState == 4 && this.status == 200) {" +
-    "                    console.log('Preset time saved for channel ' + channel);" +
+    "                    console.log('Channel settings saved for channel ' + channel);" +
     "                }" +
     "            };" +
-    "            xhttp.open('GET', '/SetPresetTime?channel=' + channel + '&time=' + presetTime, true);" +
+    "            xhttp.open('GET', url, true);" +
     "            xhttp.send();" +
     "        }" +
-    "        function loadPresetTimes() {" +
+    "        function loadChannelSettings() {" +
     "            var xhr = new XMLHttpRequest();" +
-    "            xhr.open('GET', '/GetPresetTimes', true);" +
+    "            xhr.open('GET', '/GetChannelPulseSettings', true);" +
     "            xhr.onreadystatechange = function() {" +
     "                if (xhr.readyState === 4 && xhr.status === 200) {" +
-    "                    var presetArray = JSON.parse(xhr.responseText);" +
-    "                    for (var i = 0; i < presetArray.length; i++) {" +
-    "                        var presetInput = document.getElementById('preset' + (i + 1));" +
-    "                        if (presetInput) presetInput.value = presetArray[i];" +
+    "                    var settings = JSON.parse(xhr.responseText);" +
+    "                    for (var i = 0; i < settings.durations.length; i++) {" +
+    "                        var durationInput = document.getElementById('duration' + (i + 1));" +
+    "                        var countInput = document.getElementById('count' + (i + 1));" +
+    "                        if (durationInput) durationInput.value = settings.durations[i];" +
+    "                        if (countInput) countInput.value = settings.counts[i];" +
     "                    }" +
     "                }" +
     "            };" +
@@ -414,7 +465,7 @@ void handleRoot() {
     "        var refreshInterval = 200;" +                                     
     "        setInterval(updateData, refreshInterval);" +
     "        setInterval(updateInputStates, 500);" +  // Update input states every 500ms
-    "        window.onload = function() { loadPresetTimes(); updateInputStates(); };" +
+    "        window.onload = function() { loadChannelSettings(); updateInputStates(); };" +
     "    </script>" +
     "    <div class=\"header\">"+
     "        <h1>ESP32-S3-POE-ETH-8DI-8RO</h1>"+
@@ -429,50 +480,62 @@ void handleRoot() {
     "    </div>" +
     "    <div class=\"container\">"+
     "        <div class=\"preset-controls\">"+
-    "            <h3>Preset Pulse Times</h3>"+
+    "            <h3>Channel Pulse Settings</h3>"+
     "            <div class=\"lock-controls\">"+
-    "                <button id=\"lockBtn\" onclick=\"lockPresets()\">Lock</button>"+
-    "                <button id=\"unlockBtn\" onclick=\"unlockPresets()\" style=\"display: none;\">Unlock</button>"+
+    "                <button id=\"lockBtn\" onclick=\"lockChannelSettings()\">Lock</button>"+
+    "                <button id=\"unlockBtn\" onclick=\"unlockChannelSettings()\" style=\"display: none;\">Unlock</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"settings-header\">"+
+    "                <span style=\"margin-left: 60px;\">Duration (ms)</span>"+
+    "                <span style=\"margin-left: 30px;\">Count (cycles)</span>"+
+    "            </div>"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH1:</label>"+
-    "                <input type=\"number\" id=\"preset1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(1)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count1\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(1)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH2:</label>"+
-    "                <input type=\"number\" id=\"preset2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(2)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count2\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(2)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH3:</label>"+
-    "                <input type=\"number\" id=\"preset3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(3)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count3\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(3)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH4:</label>"+
-    "                <input type=\"number\" id=\"preset4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(4)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count4\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(4)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH5:</label>"+
-    "                <input type=\"number\" id=\"preset5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(5)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count5\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(5)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH6:</label>"+
-    "                <input type=\"number\" id=\"preset6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(6)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count6\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(6)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH7:</label>"+
-    "                <input type=\"number\" id=\"preset7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(7)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count7\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(7)\">Save</button>"+
     "            </div>"+
-    "            <div class=\"preset-row\">"+
+    "            <div class=\"channel-row\">"+
     "                <label>CH8:</label>"+
-    "                <input type=\"number\" id=\"preset8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(8)\">Save</button>"+
+    "                <input type=\"number\" id=\"duration8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
+    "                <input type=\"number\" id=\"count8\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "                <button onclick=\"saveChannelSettings(8)\">Save</button>"+
     "            </div>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
@@ -892,13 +955,13 @@ void handlePulseRelay() {
     uint8_t channel = server.arg("channel").toInt();
     uint32_t pulse_time;
     
-    // Use preset time if time parameter is not provided or is empty
+    // Use channel's configured duration if time parameter is not provided or is empty
     if (server.hasArg("time") && server.arg("time").length() > 0) {
       pulse_time = server.arg("time").toInt();
     } else {
-      // Use preset time for the channel (channel 1-8, array index 0-7)
+      // Use configured duration for the channel (channel 1-8, array index 0-7)
       if (channel >= 1 && channel <= 8) {
-        pulse_time = Preset_Pulse_Times[channel - 1];
+        pulse_time = Channel_Pulse_Durations[channel - 1];
       } else {
         server.send(400, "text/plain", "Invalid channel number");
         return;
@@ -914,33 +977,71 @@ void handlePulseRelay() {
   }
 }
 
-void handleSetPresetTime() {
-  if (server.hasArg("channel") && server.hasArg("time")) {
+void handleSetChannelPulseSettings() {
+  if (server.hasArg("channel")) {
     uint8_t channel = server.arg("channel").toInt();
-    uint32_t preset_time = server.arg("time").toInt();
     
-    if (channel >= 1 && channel <= 8 && preset_time >= 10 && preset_time <= 10000) {
-      Preset_Pulse_Times[channel - 1] = preset_time;
-      savePresetTimeToNVS(channel, preset_time); // Save to persistent storage
-      printf("Preset time set: CH%d = %dms\r\n", channel, preset_time);
-      server.send(200, "text/plain", "Preset time saved");
+    if (channel >= 1 && channel <= 8) {
+      bool updated = false;
+      
+      // Update pulse duration if provided
+      if (server.hasArg("duration")) {
+        uint32_t pulse_duration = server.arg("duration").toInt();
+        if (pulse_duration >= 10 && pulse_duration <= 10000) {
+          Channel_Pulse_Durations[channel - 1] = pulse_duration;
+          saveChannelPulseDurationToNVS(channel, pulse_duration);
+          printf("Pulse duration set: CH%d = %dms\r\n", channel, pulse_duration);
+          updated = true;
+        } else {
+          server.send(400, "text/plain", "Invalid duration value (must be 10-10000ms)");
+          return;
+        }
+      }
+      
+      // Update pulse count if provided  
+      if (server.hasArg("count")) {
+        uint32_t pulse_count = server.arg("count").toInt();
+        if (pulse_count >= 1 && pulse_count <= 10) {
+          Channel_Pulse_Counts[channel - 1] = pulse_count;
+          saveChannelPulseCountToNVS(channel, pulse_count);
+          printf("Pulse count set: CH%d = %d cycles\r\n", channel, pulse_count);
+          updated = true;
+        } else {
+          server.send(400, "text/plain", "Invalid count value (must be 1-10 cycles)");
+          return;
+        }
+      }
+      
+      if (updated) {
+        server.send(200, "text/plain", "Channel pulse settings saved");
+      } else {
+        server.send(400, "text/plain", "No valid duration or count parameter provided");
+      }
     } else {
-      server.send(400, "text/plain", "Invalid channel or time value");
+      server.send(400, "text/plain", "Invalid channel number");
     }
   } else {
-    server.send(400, "text/plain", "Missing channel or time parameter");
+    server.send(400, "text/plain", "Missing channel parameter");
   }
 }
 
-void handleGetPresetTimes() {
-  String json = "[";
+void handleGetChannelPulseSettings() {
+  String json = "{";
+  json += "\"durations\":[";
   for (int i = 0; i < 8; i++) {
-    json += String(Preset_Pulse_Times[i]);
+    json += String(Channel_Pulse_Durations[i]);
     if (i < 7) {
       json += ",";
     }
   }
-  json += "]";
+  json += "],\"counts\":[";
+  for (int i = 0; i < 8; i++) {
+    json += String(Channel_Pulse_Counts[i]);
+    if (i < 7) {
+      json += ",";
+    }
+  }
+  json += "]}";
   server.send(200, "application/json", json);
 }
 
@@ -1045,22 +1146,32 @@ void handleGetInputStates() {
   server.send(200, "application/json", json);
 }
 
-void loadPresetTimesFromNVS() {
-  preferences.begin("relay-presets", false);
+void loadChannelPulseSettingsFromNVS() {
+  preferences.begin("relay-settings", false);
   for (int i = 0; i < 8; i++) {
-    String key = "preset" + String(i + 1);
-    Preset_Pulse_Times[i] = preferences.getUInt(key.c_str(), 500); // Default 500ms
+    String durationKey = "duration" + String(i + 1);
+    String countKey = "count" + String(i + 1);
+    Channel_Pulse_Durations[i] = preferences.getUInt(durationKey.c_str(), 500); // Default 500ms
+    Channel_Pulse_Counts[i] = preferences.getUInt(countKey.c_str(), 2); // Default 2 cycles
   }
   preferences.end();
-  printf("Preset times loaded from NVS\r\n");
+  printf("Channel pulse settings loaded from NVS\r\n");
 }
 
-void savePresetTimeToNVS(uint8_t channel, uint32_t time) {
-  preferences.begin("relay-presets", false);
-  String key = "preset" + String(channel);
-  preferences.putUInt(key.c_str(), time);
+void saveChannelPulseDurationToNVS(uint8_t channel, uint32_t duration) {
+  preferences.begin("relay-settings", false);
+  String key = "duration" + String(channel);
+  preferences.putUInt(key.c_str(), duration);
   preferences.end();
-  printf("Preset time saved to NVS: CH%d = %dms\r\n", channel, time);
+  printf("Pulse duration saved to NVS: CH%d = %dms\r\n", channel, duration);
+}
+
+void saveChannelPulseCountToNVS(uint8_t channel, uint32_t count) {
+  preferences.begin("relay-settings", false);
+  String key = "count" + String(channel);
+  preferences.putUInt(key.c_str(), count);
+  preferences.end();
+  printf("Pulse count saved to NVS: CH%d = %d cycles\r\n", channel, count);
 }
 void WIFI_Init()
 {
@@ -1081,8 +1192,8 @@ void WIFI_Init()
   sprintf(ipStr, "%d.%d.%d.%d", myIP[0], myIP[1], myIP[2], myIP[3]);
   printf("%s\r\n", ipStr);
 
-  // Load preset times from persistent storage
-  loadPresetTimesFromNVS();
+  // Load channel pulse settings from persistent storage
+  loadChannelPulseSettingsFromNVS();
 
   server.on("/", handleRoot);            // Relay Control page
   server.on("/getData", handleGetData);
@@ -1097,8 +1208,8 @@ void WIFI_Init()
   server.on("/AllOn"  , handleSwitch9);
   server.on("/AllOff" , handleSwitch0);
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
-  server.on("/SetPresetTime", handleSetPresetTime);  // Set preset pulse time
-  server.on("/GetPresetTimes", handleGetPresetTimes);  // Get preset pulse times
+  server.on("/SetChannelPulseSettings", handleSetChannelPulseSettings);  // Set channel pulse settings
+  server.on("/GetChannelPulseSettings", handleGetChannelPulseSettings);  // Get channel pulse settings
   server.on("/SetMainLock", handleSetMainLock);  // Set main lock state
   server.on("/GetInputStates", handleGetInputStates);  // Get input states and lock status
   
