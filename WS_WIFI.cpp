@@ -93,63 +93,7 @@ void handleRoot() {
     "        .button-container button:hover {" +
     "            background-color: #555;" +
     "        }" +
-    "        .preset-controls {" +
-    "            margin-bottom: 20px;" +
-    "            padding: 15px;" +
-    "            background-color: #f9f9f9;" +
-    "            border-radius: 5px;" +
-    "            border: 1px solid #ddd;" +
-    "        }" +
-    "        .preset-controls h3 {" +
-    "            margin-top: 0;" +
-    "            margin-bottom: 15px;" +
-    "            color: #333;" +
-    "        }" +
-    "        .lock-controls {" +
-    "            text-align: center;" +
-    "            margin-bottom: 15px;" +
-    "        }" +
-    "        .lock-controls button {" +
-    "            padding: 8px 16px;" +
-    "            background-color: #007bff;" +
-    "            color: white;" +
-    "            border: none;" +
-    "            border-radius: 4px;" +
-    "            cursor: pointer;" +
-    "            font-size: 14px;" +
-    "            margin: 0 5px;" +
-    "        }" +
-    "        .lock-controls button:hover {" +
-    "            background-color: #0056b3;" +
-    "        }" +
-    "        .preset-row {" +
-    "            display: flex;" +
-    "            align-items: center;" +
-    "            margin-bottom: 8px;" +
-    "        }" +
-    "        .preset-row label {" +
-    "            width: 50px;" +
-    "            margin-right: 10px;" +
-    "        }" +
-    "        .preset-row input {" +
-    "            width: 80px;" +
-    "            padding: 4px;" +
-    "            border: 1px solid #ccc;" +
-    "            border-radius: 3px;" +
-    "            margin-right: 10px;" +
-    "        }" +
-    "        .preset-row button {" +
-    "            padding: 4px 8px;" +
-    "            background-color: #28a745;" +
-    "            color: white;" +
-    "            border: none;" +
-    "            border-radius: 3px;" +
-    "            cursor: pointer;" +
-    "            font-size: 12px;" +
-    "        }" +
-    "        .preset-row button:hover {" +
-    "            background-color: #218838;" +
-    "        }" +
+
     "        .channel-row {" +
     "            display: flex;" +
     "            align-items: center;" +
@@ -206,29 +150,7 @@ void handleRoot() {
     "        nav a.rtcEventActive {" + 
     "            background-color: #555;" +
     "        }" + 
-    "        .input-states {" +
-    "            max-width: 600px;" +
-    "            margin: 0 auto 20px auto;" +
-    "            padding: 15px;" +
-    "            background-color: #e8f4fd;" +
-    "            border-radius: 5px;" +
-    "            border: 1px solid #b3d9ff;" +
-    "        }" +
-    "        .input-states h3 {" +
-    "            margin-top: 0;" +
-    "            margin-bottom: 10px;" +
-    "            color: #333;" +
-    "            font-size: 16px;" +
-    "        }" +
-    "        #inputDisplay {" +
-    "            font-family: monospace;" +
-    "            font-size: 14px;" +
-    "            color: #333;" +
-    "            padding: 8px;" +
-    "            background-color: #f0f8ff;" +
-    "            border-radius: 3px;" +
-    "            border: 1px solid #cce7ff;" +
-    "        }" +
+
     "        .main-lock-controls {" +
     "            margin-top: 20px;" +
     "            text-align: center;" +
@@ -302,44 +224,23 @@ void handleRoot() {
     "            xhttp.open('GET', url, true);" +
     "            xhttp.send();" +
     "        }" +
-    "        function lockChannelSettings() {" +
-    "            var isLocked = true;" +
-    "            for (var i = 1; i <= 8; i++) {" +
-    "                var durationInput = document.getElementById('duration' + i);" +
-    "                var countInput = document.getElementById('count' + i);" +
-    "                if (durationInput) durationInput.disabled = isLocked;" +
-    "                if (countInput) countInput.disabled = isLocked;" +
-    "            }" +
-    "            document.getElementById('lockBtn').style.display = 'none';" +
-    "            document.getElementById('unlockBtn').style.display = 'inline-block';" +
-    "        }" +
-    "        function unlockChannelSettings() {" +
-    "            var isLocked = false;" +
-    "            for (var i = 1; i <= 8; i++) {" +
-    "                var durationInput = document.getElementById('duration' + i);" +
-    "                var countInput = document.getElementById('count' + i);" +
-    "                if (durationInput) durationInput.disabled = isLocked;" +
-    "                if (countInput) countInput.disabled = isLocked;" +
-    "            }" +
-    "            document.getElementById('lockBtn').style.display = 'inline-block';" +
-    "            document.getElementById('unlockBtn').style.display = 'none';" +
-    "        }" +
+
     "        function saveChannelSettings(channel) {" +
-    "            var durationInput = document.getElementById('duration' + channel);" +
+    "            var timeInput = document.getElementById('time' + channel);" +
     "            var countInput = document.getElementById('count' + channel);" +
-    "            var duration = parseInt(durationInput.value);" +
+    "            var time = parseInt(timeInput.value);" +
     "            var count = parseInt(countInput.value);" +
     "            " +
-    "            var hasValidDuration = !isNaN(duration) && duration >= 10 && duration <= 10000;" +
+    "            var hasValidTime = !isNaN(time) && time >= 10 && time <= 10000;" +
     "            var hasValidCount = !isNaN(count) && count >= 1 && count <= 10;" +
     "            " +
-    "            if (!hasValidDuration && !hasValidCount) {" +
-    "                alert('Please enter valid duration (10-10000ms) and/or count (1-10 cycles)');" +
+    "            if (!hasValidTime && !hasValidCount) {" +
+    "                alert('Please enter valid time (10-10000ms) and/or count (1-10 cycles)');" +
     "                return;" +
     "            }" +
     "            " +
     "            var url = '/SetChannelPulseSettings?channel=' + channel;" +
-    "            if (hasValidDuration) url += '&duration=' + duration;" +
+    "            if (hasValidTime) url += '&time=' + time;" +
     "            if (hasValidCount) url += '&count=' + count;" +
     "            " +
     "            var xhttp = new XMLHttpRequest();" +
@@ -358,9 +259,9 @@ void handleRoot() {
     "                if (xhr.readyState === 4 && xhr.status === 200) {" +
     "                    var settings = JSON.parse(xhr.responseText);" +
     "                    for (var i = 0; i < settings.durations.length; i++) {" +
-    "                        var durationInput = document.getElementById('duration' + (i + 1));" +
+    "                        var timeInput = document.getElementById('time' + (i + 1));" +
     "                        var countInput = document.getElementById('count' + (i + 1));" +
-    "                        if (durationInput) durationInput.value = settings.durations[i];" +
+    "                        if (timeInput) timeInput.value = settings.durations[i];" +
     "                        if (countInput) countInput.value = settings.counts[i];" +
     "                    }" +
     "                }" +
@@ -387,26 +288,7 @@ void handleRoot() {
     "            };" +
     "            xhr.send();" +
     "        }" +
-    "        function updateInputStates() {" +
-    "            var xhr = new XMLHttpRequest();" +
-    "            xhr.open('GET', '/GetInputStates', true);" +
-    "            xhr.onreadystatechange = function() {" +
-    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
-    "                    var data = JSON.parse(xhr.responseText);" +
-    "                    var inputDisplay = 'D11: ' + (data.inputs[0] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D12: ' + (data.inputs[1] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D13: ' + (data.inputs[2] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D14: ' + (data.inputs[3] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D15: ' + (data.inputs[4] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D16: ' + (data.inputs[5] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D17: ' + (data.inputs[6] ? 'HIGH' : 'LOW') + ' ' +" +
-    "                                      'D18: ' + (data.inputs[7] ? 'HIGH' : 'LOW');" +
-    "                    document.getElementById('inputDisplay').textContent = inputDisplay;" +
-    "                    updateMainLockButtons(data.locked);" +
-    "                }" +
-    "            };" +
-    "            xhr.send();" +
-    "        }" +
+
     "        function updateMainLockButtons(isLocked) {" +
     "            if (isLocked) {" +
     "                document.getElementById('mainLockBtn').style.display = 'none';" +
@@ -440,6 +322,7 @@ void handleRoot() {
     "                        document.getElementById('btn9').disabled = false;" +  // All On
     "                        document.getElementById('btn0').disabled = false;" +  // All Off
     "                    }" +
+    "                    updateMainLockButtons(data.locked);" +
     "                }" +
     "            };" +
     "            xhr.send();" +
@@ -449,7 +332,7 @@ void handleRoot() {
     "            xhr.onreadystatechange = function() {" +
     "                if (xhr.readyState === 4 && xhr.status === 200) {" +
     "                    console.log('Main lock state changed to: ' + state);" +
-    "                    updateInputStates(); // Refresh states" +
+    "                    updateRelayButtons(); // Refresh states" +
     "                }" +
     "            };" +
     "            xhr.open('GET', '/SetMainLock?state=' + state, true);" +
@@ -464,8 +347,7 @@ void handleRoot() {
     "        }" +
     "        var refreshInterval = 200;" +                                     
     "        setInterval(updateData, refreshInterval);" +
-    "        setInterval(updateInputStates, 500);" +  // Update input states every 500ms
-    "        window.onload = function() { loadChannelSettings(); updateInputStates(); };" +
+    "        window.onload = function() { loadChannelSettings(); updateRelayButtons(); };" +
     "    </script>" +
     "    <div class=\"header\">"+
     "        <h1>ESP32-S3-POE-ETH-8DI-8RO</h1>"+
@@ -474,76 +356,17 @@ void handleRoot() {
     "        <a href=\"/\" id=\"relayControlLink\" class=\"relayControlActive\">Relay Control</a>" +  
     "        <a href=\"/RTC_Event\" id=\"rtcEventLink\" class=\"rtcEventActive\">RTC Event</a>" + 
     "    </nav>" +
-    "    <div class=\"input-states\">" +
-    "        <h3>Input Pin States (D11-D18)</h3>" +
-    "        <div id=\"inputDisplay\">Loading...</div>" +
-    "    </div>" +
+
     "    <div class=\"container\">"+
-    "        <div class=\"preset-controls\">"+
-    "            <h3>Channel Pulse Settings</h3>"+
-    "            <div class=\"lock-controls\">"+
-    "                <button id=\"lockBtn\" onclick=\"lockChannelSettings()\">Lock</button>"+
-    "                <button id=\"unlockBtn\" onclick=\"unlockChannelSettings()\" style=\"display: none;\">Unlock</button>"+
-    "            </div>"+
-    "            <div class=\"settings-header\">"+
-    "                <span style=\"margin-left: 60px;\">Duration (ms)</span>"+
-    "                <span style=\"margin-left: 30px;\">Count (cycles)</span>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH1:</label>"+
-    "                <input type=\"number\" id=\"duration1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count1\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(1)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH2:</label>"+
-    "                <input type=\"number\" id=\"duration2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count2\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(2)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH3:</label>"+
-    "                <input type=\"number\" id=\"duration3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count3\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(3)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH4:</label>"+
-    "                <input type=\"number\" id=\"duration4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count4\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(4)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH5:</label>"+
-    "                <input type=\"number\" id=\"duration5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count5\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(5)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH6:</label>"+
-    "                <input type=\"number\" id=\"duration6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count6\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(6)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH7:</label>"+
-    "                <input type=\"number\" id=\"duration7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count7\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(7)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"channel-row\">"+
-    "                <label>CH8:</label>"+
-    "                <input type=\"number\" id=\"duration8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <input type=\"number\" id=\"count8\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
-    "                <button onclick=\"saveChannelSettings(8)\">Save</button>"+
-    "            </div>"+
-    "        </div>"+
+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input1\">CH1</label>"+
     "            <input type=\"text\" id=\"ch1\" />"+
     "            <button value=\"Switch1\" id=\"btn1\" disabled onclick=\"ledSwitch(1)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(1)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count1\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(1)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input2\">CH2</label>"+
@@ -551,6 +374,8 @@ void handleRoot() {
     "            <button value=\"Switch2\" id=\"btn2\" disabled onclick=\"ledSwitch(2)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(2)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count2\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(2)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input3\">CH3</label>"+
@@ -558,6 +383,8 @@ void handleRoot() {
     "            <button value=\"Switch3\" id=\"btn3\" disabled onclick=\"ledSwitch(3)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(3)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count3\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(3)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input4\">CH4</label>"+
@@ -565,6 +392,8 @@ void handleRoot() {
     "            <button value=\"Switch4\" id=\"btn4\" disabled onclick=\"ledSwitch(4)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(4)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count4\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(4)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input5\">CH5</label>"+
@@ -572,6 +401,8 @@ void handleRoot() {
     "            <button value=\"Switch5\" id=\"btn5\" disabled onclick=\"ledSwitch(5)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(5)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count5\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(5)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input6\">CH6</label>"+
@@ -579,6 +410,8 @@ void handleRoot() {
     "            <button value=\"Switch6\" id=\"btn6\" disabled onclick=\"ledSwitch(6)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(6)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count6\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(6)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input7\">CH7</label>"+
@@ -586,6 +419,8 @@ void handleRoot() {
     "            <button value=\"Switch7\" id=\"btn7\" disabled onclick=\"ledSwitch(7)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(7)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count7\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(7)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input8\">CH8</label>"+
@@ -593,6 +428,8 @@ void handleRoot() {
     "            <button value=\"Switch8\" id=\"btn8\" disabled onclick=\"ledSwitch(8)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(8)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"count8\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
+    "            <button onclick=\"saveChannelSettings(8)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"button-container\">"+
     "            <button value=\"AllOn\" id=\"btn9\" disabled onclick=\"ledSwitch(9)\">All On</button>"+
@@ -984,16 +821,16 @@ void handleSetChannelPulseSettings() {
     if (channel >= 1 && channel <= 8) {
       bool updated = false;
       
-      // Update pulse duration if provided
-      if (server.hasArg("duration")) {
-        uint32_t pulse_duration = server.arg("duration").toInt();
-        if (pulse_duration >= 10 && pulse_duration <= 10000) {
-          Channel_Pulse_Durations[channel - 1] = pulse_duration;
-          saveChannelPulseDurationToNVS(channel, pulse_duration);
-          printf("Pulse duration set: CH%d = %dms\r\n", channel, pulse_duration);
+      // Update pulse duration if time parameter is provided
+      if (server.hasArg("time")) {
+        uint32_t pulse_time = server.arg("time").toInt();
+        if (pulse_time >= 10 && pulse_time <= 10000) {
+          Channel_Pulse_Durations[channel - 1] = pulse_time;
+          saveChannelPulseTimeToNVS(channel, pulse_time);
+          printf("Pulse time set: CH%d = %dms\r\n", channel, pulse_time);
           updated = true;
         } else {
-          server.send(400, "text/plain", "Invalid duration value (must be 10-10000ms)");
+          server.send(400, "text/plain", "Invalid time value (must be 10-10000ms)");
           return;
         }
       }
@@ -1015,7 +852,7 @@ void handleSetChannelPulseSettings() {
       if (updated) {
         server.send(200, "text/plain", "Channel pulse settings saved");
       } else {
-        server.send(400, "text/plain", "No valid duration or count parameter provided");
+        server.send(400, "text/plain", "No valid time or count parameter provided");
       }
     } else {
       server.send(400, "text/plain", "Invalid channel number");
@@ -1149,21 +986,26 @@ void handleGetInputStates() {
 void loadChannelPulseSettingsFromNVS() {
   preferences.begin("relay-settings", false);
   for (int i = 0; i < 8; i++) {
-    String durationKey = "duration" + String(i + 1);
+    String timeKey = "time" + String(i + 1);
     String countKey = "count" + String(i + 1);
-    Channel_Pulse_Durations[i] = preferences.getUInt(durationKey.c_str(), 500); // Default 500ms
+    Channel_Pulse_Durations[i] = preferences.getUInt(timeKey.c_str(), 500); // Default 500ms
     Channel_Pulse_Counts[i] = preferences.getUInt(countKey.c_str(), 2); // Default 2 cycles
   }
   preferences.end();
   printf("Channel pulse settings loaded from NVS\r\n");
 }
 
-void saveChannelPulseDurationToNVS(uint8_t channel, uint32_t duration) {
+void saveChannelPulseTimeToNVS(uint8_t channel, uint32_t time) {
   preferences.begin("relay-settings", false);
-  String key = "duration" + String(channel);
-  preferences.putUInt(key.c_str(), duration);
+  String key = "time" + String(channel);
+  preferences.putUInt(key.c_str(), time);
   preferences.end();
-  printf("Pulse duration saved to NVS: CH%d = %dms\r\n", channel, duration);
+  printf("Pulse time saved to NVS: CH%d = %dms\r\n", channel, time);
+}
+
+void saveChannelPulseDurationToNVS(uint8_t channel, uint32_t duration) {
+  // Legacy function - redirect to saveChannelPulseTimeToNVS for compatibility
+  saveChannelPulseTimeToNVS(channel, duration);
 }
 
 void saveChannelPulseCountToNVS(uint8_t channel, uint32_t count) {

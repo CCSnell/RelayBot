@@ -38,6 +38,7 @@ void WIFI_Loop();
 void WebTask(void *parameter);
 void loadChannelPulseSettingsFromNVS();
 void saveChannelPulseDurationToNVS(uint8_t channel, uint32_t duration);
+void saveChannelPulseTimeToNVS(uint8_t channel, uint32_t time);
 void saveChannelPulseCountToNVS(uint8_t channel, uint32_t count);
 
 bool parseData(const char* Text, datetime_t* dt, Status_adjustment* Relay, Repetition_event* cycleEvent) ;
