@@ -8,7 +8,6 @@ IPAddress apIP(192, 168, 4, 1);    // Set the IP address of the AP
 char ipStr[16];
 WebServer server(80);
 Preferences preferences;  // For persistent storage
-bool Main_Lock_State = true;  // Main relay controls lock state (default locked)
 
 void handleRoot() {
   String myhtmlPage =
@@ -151,37 +150,6 @@ void handleRoot() {
     "            background-color: #555;" +
     "        }" + 
 
-    "        .main-lock-controls {" +
-    "            margin-top: 20px;" +
-    "            text-align: center;" +
-    "            padding: 15px;" +
-    "            background-color: #ffe6e6;" +
-    "            border-radius: 5px;" +
-    "            border: 1px solid #ffb3b3;" +
-    "        }" +
-    "        .main-lock-controls button {" +
-    "            padding: 12px 30px;" +
-    "            font-size: 16px;" +
-    "            font-weight: bold;" +
-    "            border: none;" +
-    "            border-radius: 5px;" +
-    "            cursor: pointer;" +
-    "            margin: 0 10px;" +
-    "        }" +
-    "        #mainLockBtn {" +
-    "            background-color: #ff4444;" +
-    "            color: white;" +
-    "        }" +
-    "        #mainLockBtn:hover {" +
-    "            background-color: #cc0000;" +
-    "        }" +
-    "        #mainUnlockBtn {" +
-    "            background-color: #44ff44;" +
-    "            color: white;" +
-    "        }" +
-    "        #mainUnlockBtn:hover {" +
-    "            background-color: #00cc00;" +
-    "        }" +
     "    </style>" +
     "</head>"+
     "<body>"+
@@ -289,54 +257,13 @@ void handleRoot() {
     "            xhr.send();" +
     "        }" +
 
-    "        function updateMainLockButtons(isLocked) {" +
-    "            if (isLocked) {" +
-    "                document.getElementById('mainLockBtn').style.display = 'none';" +
-    "                document.getElementById('mainUnlockBtn').style.display = 'inline-block';" +
-    "            } else {" +
-    "                document.getElementById('mainLockBtn').style.display = 'inline-block';" +
-    "                document.getElementById('mainUnlockBtn').style.display = 'none';" +
-    "            }" +
-    "        }" +
     "        function updateRelayButtons() {" +
-    "            // This is called after getData to handle relay button states" +
-    "            var xhr = new XMLHttpRequest();" +
-    "            xhr.open('GET', '/GetInputStates', true);" +
-    "            xhr.onreadystatechange = function() {" +
-    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
-    "                    var data = JSON.parse(xhr.responseText);" +
-    "                    var isLocked = data.locked;" +
-    "                    // Enable/disable relay control buttons based on lock state" +
-    "                    if (isLocked) {" +
-    "                        // If locked, disable relay buttons" +
-    "                        for (var i = 1; i <= 8; i++) {" +
-    "                            document.getElementById('btn' + i).disabled = true;" +
-    "                        }" +
-    "                        document.getElementById('btn9').disabled = true;" +  // All On
-    "                        document.getElementById('btn0').disabled = true;" +  // All Off
-    "                    } else {" +
-    "                        // If unlocked, enable relay buttons" +
-    "                        for (var i = 1; i <= 8; i++) {" +
-    "                            document.getElementById('btn' + i).disabled = false;" +
-    "                        }" +
-    "                        document.getElementById('btn9').disabled = false;" +  // All On
-    "                        document.getElementById('btn0').disabled = false;" +  // All Off
-    "                    }" +
-    "                    updateMainLockButtons(data.locked);" +
-    "                }" +
-    "            };" +
-    "            xhr.send();" +
-    "        }" +
-    "        function setMainLock(state) {" +
-    "            var xhr = new XMLHttpRequest();" +
-    "            xhr.onreadystatechange = function() {" +
-    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
-    "                    console.log('Main lock state changed to: ' + state);" +
-    "                    updateRelayButtons(); // Refresh states" +
-    "                }" +
-    "            };" +
-    "            xhr.open('GET', '/SetMainLock?state=' + state, true);" +
-    "            xhr.send();" +
+    "            // Always enable all relay control buttons" +
+    "            for (var i = 1; i <= 8; i++) {" +
+    "                document.getElementById('btn' + i).disabled = false;" +
+    "            }" +
+    "            document.getElementById('btn9').disabled = false;" +  // All On
+    "            document.getElementById('btn0').disabled = false;" +  // All Off
     "        }" +
     "        function displayErrorTextBox(show) {" +
     "          var errorTextbox = document.getElementById('errorTextbox');" +
@@ -362,7 +289,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input1\">CH1</label>"+
     "            <input type=\"text\" id=\"ch1\" />"+
-    "            <button value=\"Switch1\" id=\"btn1\" disabled onclick=\"ledSwitch(1)\">Toggle</button>"+
+    "            <button value=\"Switch1\" id=\"btn1\" onclick=\"ledSwitch(1)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(1)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count1\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -371,7 +298,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input2\">CH2</label>"+
     "            <input type=\"text\" id=\"ch2\" />"+
-    "            <button value=\"Switch2\" id=\"btn2\" disabled onclick=\"ledSwitch(2)\">Toggle</button>"+
+    "            <button value=\"Switch2\" id=\"btn2\" onclick=\"ledSwitch(2)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(2)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count2\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -380,7 +307,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input3\">CH3</label>"+
     "            <input type=\"text\" id=\"ch3\" />"+
-    "            <button value=\"Switch3\" id=\"btn3\" disabled onclick=\"ledSwitch(3)\">Toggle</button>"+
+    "            <button value=\"Switch3\" id=\"btn3\" onclick=\"ledSwitch(3)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(3)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count3\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -389,7 +316,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input4\">CH4</label>"+
     "            <input type=\"text\" id=\"ch4\" />"+
-    "            <button value=\"Switch4\" id=\"btn4\" disabled onclick=\"ledSwitch(4)\">Toggle</button>"+
+    "            <button value=\"Switch4\" id=\"btn4\" onclick=\"ledSwitch(4)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(4)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count4\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -398,7 +325,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input5\">CH5</label>"+
     "            <input type=\"text\" id=\"ch5\" />"+
-    "            <button value=\"Switch5\" id=\"btn5\" disabled onclick=\"ledSwitch(5)\">Toggle</button>"+
+    "            <button value=\"Switch5\" id=\"btn5\" onclick=\"ledSwitch(5)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(5)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count5\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -407,7 +334,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input6\">CH6</label>"+
     "            <input type=\"text\" id=\"ch6\" />"+
-    "            <button value=\"Switch6\" id=\"btn6\" disabled onclick=\"ledSwitch(6)\">Toggle</button>"+
+    "            <button value=\"Switch6\" id=\"btn6\" onclick=\"ledSwitch(6)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(6)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count6\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -416,7 +343,7 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input7\">CH7</label>"+
     "            <input type=\"text\" id=\"ch7\" />"+
-    "            <button value=\"Switch7\" id=\"btn7\" disabled onclick=\"ledSwitch(7)\">Toggle</button>"+
+    "            <button value=\"Switch7\" id=\"btn7\" onclick=\"ledSwitch(7)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(7)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count7\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
@@ -425,21 +352,17 @@ void handleRoot() {
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input8\">CH8</label>"+
     "            <input type=\"text\" id=\"ch8\" />"+
-    "            <button value=\"Switch8\" id=\"btn8\" disabled onclick=\"ledSwitch(8)\">Toggle</button>"+
+    "            <button value=\"Switch8\" id=\"btn8\" onclick=\"ledSwitch(8)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(8)\">Pulse</button>"+
     "            <input type=\"number\" id=\"count8\" placeholder=\"cycles\" min=\"1\" max=\"10\" value=\"2\" />"+
     "            <button onclick=\"saveChannelSettings(8)\">SAVE</button>"+
     "        </div>"+
     "        <div class=\"button-container\">"+
-    "            <button value=\"AllOn\" id=\"btn9\" disabled onclick=\"ledSwitch(9)\">All On</button>"+
-    "            <button value=\"AllOff\" id=\"btn0\" disabled onclick=\"ledSwitch(0)\">All Off</button>"+
+    "            <button value=\"AllOn\" id=\"btn9\" onclick=\"ledSwitch(9)\">All On</button>"+
+    "            <button value=\"AllOff\" id=\"btn0\" onclick=\"ledSwitch(0)\">All Off</button>"+
     "        </div>"+
-    "        <div class=\"main-lock-controls\">"+
-    "            <button id=\"mainLockBtn\" onclick=\"setMainLock('lock')\" style=\"display: none;\">LOCK</button>"+
-    "            <button id=\"mainUnlockBtn\" onclick=\"setMainLock('unlock')\">UNLOCK</button>"+
-    "        </div>"+
-    "        <div id=\"errorTextbox\" style=\"display: none;\"> "+     
+    "        <div id=\"errorTextbox\" style=\"display: none;\"> "+
     "            <p>English:Please refresh the page</p>"+      
     "            <p>Chinese:请刷新页面</p>"+
     "        </div>"+
@@ -764,13 +687,6 @@ void handleGetData() {
 }
 
 void handleSwitch(uint8_t ledNumber) {
-  // Check if main controls are locked (except for pulse operations)
-  if (Main_Lock_State && (ledNumber >= 0 && ledNumber <= 9)) {
-    server.send(403, "text/plain", "Main controls are locked");
-    printf("Switch operation blocked - main controls locked\r\n");
-    return;
-  }
-  
   uint8_t Data[1]={0};
   Data[0]=ledNumber+48;
   Relay_Analysis(Data,WIFI_Mode);
@@ -946,31 +862,11 @@ void handleDeleteEvent() {
   }
 }
 
-void handleSetMainLock() {
-  if (server.hasArg("state")) {
-    String state = server.arg("state");
-    if (state == "lock") {
-      Main_Lock_State = true;
-      server.send(200, "text/plain", "Main controls locked");
-      printf("Main relay controls locked\r\n");
-    } else if (state == "unlock") {
-      Main_Lock_State = false;
-      server.send(200, "text/plain", "Main controls unlocked");
-      printf("Main relay controls unlocked\r\n");
-    } else {
-      server.send(400, "text/plain", "Invalid state parameter");
-    }
-  } else {
-    server.send(400, "text/plain", "Missing state parameter");
-  }
-}
-
 void handleGetInputStates() {
   // Read current DIN pin states
   DIN_Read_CHxs();
   
   String json = "{";
-  json += "\"locked\":" + String(Main_Lock_State ? "true" : "false") + ",";
   json += "\"inputs\":[";
   for (int i = 0; i < 8; i++) {
     json += String(DIN_Flag[i] ? "1" : "0");
@@ -1052,8 +948,7 @@ void WIFI_Init()
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
   server.on("/SetChannelPulseSettings", handleSetChannelPulseSettings);  // Set channel pulse settings
   server.on("/GetChannelPulseSettings", handleGetChannelPulseSettings);  // Get channel pulse settings
-  server.on("/SetMainLock", handleSetMainLock);  // Set main lock state
-  server.on("/GetInputStates", handleGetInputStates);  // Get input states and lock status
+  server.on("/GetInputStates", handleGetInputStates);  // Get input states
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);
