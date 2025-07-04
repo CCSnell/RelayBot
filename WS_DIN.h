@@ -15,4 +15,7 @@
 #define Relay_Immediate_Default   1       // Enable the input control relay
 #define DIN_Inverse_Enable        1       // Input is reversed from control
 
+extern bool DIN_Flag[8];  // DIN current status flag
+
 void DIN_Init(void);
+uint8_t DIN_Read_CHxs();

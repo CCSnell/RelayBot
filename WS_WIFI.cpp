@@ -6,7 +6,9 @@ const char *password = APPSK;
 IPAddress apIP(192, 168, 4, 1);    // Set the IP address of the AP
 
 char ipStr[16];
-WebServer server(80);                               
+WebServer server(80);
+Preferences preferences;  // For persistent storage
+bool Main_Lock_State = true;  // Main relay controls lock state (default locked)
 
 void handleRoot() {
   String myhtmlPage =
@@ -170,6 +172,60 @@ void handleRoot() {
     "        nav a.rtcEventActive {" + 
     "            background-color: #555;" +
     "        }" + 
+    "        .input-states {" +
+    "            max-width: 600px;" +
+    "            margin: 0 auto 20px auto;" +
+    "            padding: 15px;" +
+    "            background-color: #e8f4fd;" +
+    "            border-radius: 5px;" +
+    "            border: 1px solid #b3d9ff;" +
+    "        }" +
+    "        .input-states h3 {" +
+    "            margin-top: 0;" +
+    "            margin-bottom: 10px;" +
+    "            color: #333;" +
+    "            font-size: 16px;" +
+    "        }" +
+    "        #inputDisplay {" +
+    "            font-family: monospace;" +
+    "            font-size: 14px;" +
+    "            color: #333;" +
+    "            padding: 8px;" +
+    "            background-color: #f0f8ff;" +
+    "            border-radius: 3px;" +
+    "            border: 1px solid #cce7ff;" +
+    "        }" +
+    "        .main-lock-controls {" +
+    "            margin-top: 20px;" +
+    "            text-align: center;" +
+    "            padding: 15px;" +
+    "            background-color: #ffe6e6;" +
+    "            border-radius: 5px;" +
+    "            border: 1px solid #ffb3b3;" +
+    "        }" +
+    "        .main-lock-controls button {" +
+    "            padding: 12px 30px;" +
+    "            font-size: 16px;" +
+    "            font-weight: bold;" +
+    "            border: none;" +
+    "            border-radius: 5px;" +
+    "            cursor: pointer;" +
+    "            margin: 0 10px;" +
+    "        }" +
+    "        #mainLockBtn {" +
+    "            background-color: #ff4444;" +
+    "            color: white;" +
+    "        }" +
+    "        #mainLockBtn:hover {" +
+    "            background-color: #cc0000;" +
+    "        }" +
+    "        #mainUnlockBtn {" +
+    "            background-color: #44ff44;" +
+    "            color: white;" +
+    "        }" +
+    "        #mainUnlockBtn:hover {" +
+    "            background-color: #00cc00;" +
+    "        }" +
     "    </style>" +
     "</head>"+
     "<body>"+
@@ -275,18 +331,77 @@ void handleRoot() {
     "                document.getElementById('ch7').value = dataArray[6];" +
     "                document.getElementById('ch8').value = dataArray[7];" +
     // "                // Remove the button's disabled attribute to make it clickable"+
-    "                document.getElementById('btn1').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn2').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn3').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn4').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn5').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn6').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn7').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn8').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn9').removeAttribute(\'disabled\');" +
-    "                document.getElementById('btn0').removeAttribute(\'disabled\');" +
+    "                updateRelayButtons();" +
     "              }" +
     "            };" +
+    "            xhr.send();" +
+    "        }" +
+    "        function updateInputStates() {" +
+    "            var xhr = new XMLHttpRequest();" +
+    "            xhr.open('GET', '/GetInputStates', true);" +
+    "            xhr.onreadystatechange = function() {" +
+    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
+    "                    var data = JSON.parse(xhr.responseText);" +
+    "                    var inputDisplay = 'D11: ' + (data.inputs[0] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D12: ' + (data.inputs[1] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D13: ' + (data.inputs[2] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D14: ' + (data.inputs[3] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D15: ' + (data.inputs[4] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D16: ' + (data.inputs[5] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D17: ' + (data.inputs[6] ? 'HIGH' : 'LOW') + ' ' +" +
+    "                                      'D18: ' + (data.inputs[7] ? 'HIGH' : 'LOW');" +
+    "                    document.getElementById('inputDisplay').textContent = inputDisplay;" +
+    "                    updateMainLockButtons(data.locked);" +
+    "                }" +
+    "            };" +
+    "            xhr.send();" +
+    "        }" +
+    "        function updateMainLockButtons(isLocked) {" +
+    "            if (isLocked) {" +
+    "                document.getElementById('mainLockBtn').style.display = 'none';" +
+    "                document.getElementById('mainUnlockBtn').style.display = 'inline-block';" +
+    "            } else {" +
+    "                document.getElementById('mainLockBtn').style.display = 'inline-block';" +
+    "                document.getElementById('mainUnlockBtn').style.display = 'none';" +
+    "            }" +
+    "        }" +
+    "        function updateRelayButtons() {" +
+    "            // This is called after getData to handle relay button states" +
+    "            var xhr = new XMLHttpRequest();" +
+    "            xhr.open('GET', '/GetInputStates', true);" +
+    "            xhr.onreadystatechange = function() {" +
+    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
+    "                    var data = JSON.parse(xhr.responseText);" +
+    "                    var isLocked = data.locked;" +
+    "                    // Enable/disable relay control buttons based on lock state" +
+    "                    if (isLocked) {" +
+    "                        // If locked, disable relay buttons" +
+    "                        for (var i = 1; i <= 8; i++) {" +
+    "                            document.getElementById('btn' + i).disabled = true;" +
+    "                        }" +
+    "                        document.getElementById('btn9').disabled = true;" +  // All On
+    "                        document.getElementById('btn0').disabled = true;" +  // All Off
+    "                    } else {" +
+    "                        // If unlocked, enable relay buttons" +
+    "                        for (var i = 1; i <= 8; i++) {" +
+    "                            document.getElementById('btn' + i).disabled = false;" +
+    "                        }" +
+    "                        document.getElementById('btn9').disabled = false;" +  // All On
+    "                        document.getElementById('btn0').disabled = false;" +  // All Off
+    "                    }" +
+    "                }" +
+    "            };" +
+    "            xhr.send();" +
+    "        }" +
+    "        function setMainLock(state) {" +
+    "            var xhr = new XMLHttpRequest();" +
+    "            xhr.onreadystatechange = function() {" +
+    "                if (xhr.readyState === 4 && xhr.status === 200) {" +
+    "                    console.log('Main lock state changed to: ' + state);" +
+    "                    updateInputStates(); // Refresh states" +
+    "                }" +
+    "            };" +
+    "            xhr.open('GET', '/SetMainLock?state=' + state, true);" +
     "            xhr.send();" +
     "        }" +
     "        function displayErrorTextBox(show) {" +
@@ -298,7 +413,8 @@ void handleRoot() {
     "        }" +
     "        var refreshInterval = 200;" +                                     
     "        setInterval(updateData, refreshInterval);" +
-    "        window.onload = function() { loadPresetTimes(); };" +
+    "        setInterval(updateInputStates, 500);" +  // Update input states every 500ms
+    "        window.onload = function() { loadPresetTimes(); updateInputStates(); };" +
     "    </script>" +
     "    <div class=\"header\">"+
     "        <h1>ESP32-S3-POE-ETH-8DI-8RO</h1>"+
@@ -307,6 +423,10 @@ void handleRoot() {
     "        <a href=\"/\" id=\"relayControlLink\" class=\"relayControlActive\">Relay Control</a>" +  
     "        <a href=\"/RTC_Event\" id=\"rtcEventLink\" class=\"rtcEventActive\">RTC Event</a>" + 
     "    </nav>" +
+    "    <div class=\"input-states\">" +
+    "        <h3>Input Pin States (D11-D18)</h3>" +
+    "        <div id=\"inputDisplay\">Loading...</div>" +
+    "    </div>" +
     "    <div class=\"container\">"+
     "        <div class=\"preset-controls\">"+
     "            <h3>Preset Pulse Times</h3>"+
@@ -414,6 +534,10 @@ void handleRoot() {
     "        <div class=\"button-container\">"+
     "            <button value=\"AllOn\" id=\"btn9\" disabled onclick=\"ledSwitch(9)\">All On</button>"+
     "            <button value=\"AllOff\" id=\"btn0\" disabled onclick=\"ledSwitch(0)\">All Off</button>"+
+    "        </div>"+
+    "        <div class=\"main-lock-controls\">"+
+    "            <button id=\"mainLockBtn\" onclick=\"setMainLock('lock')\" style=\"display: none;\">LOCK</button>"+
+    "            <button id=\"mainUnlockBtn\" onclick=\"setMainLock('unlock')\">UNLOCK</button>"+
     "        </div>"+
     "        <div id=\"errorTextbox\" style=\"display: none;\"> "+     
     "            <p>English:Please refresh the page</p>"+      
@@ -740,6 +864,13 @@ void handleGetData() {
 }
 
 void handleSwitch(uint8_t ledNumber) {
+  // Check if main controls are locked (except for pulse operations)
+  if (Main_Lock_State && (ledNumber >= 0 && ledNumber <= 9)) {
+    server.send(403, "text/plain", "Main controls are locked");
+    printf("Switch operation blocked - main controls locked\r\n");
+    return;
+  }
+  
   uint8_t Data[1]={0};
   Data[0]=ledNumber+48;
   Relay_Analysis(Data,WIFI_Mode);
@@ -790,6 +921,7 @@ void handleSetPresetTime() {
     
     if (channel >= 1 && channel <= 8 && preset_time >= 10 && preset_time <= 10000) {
       Preset_Pulse_Times[channel - 1] = preset_time;
+      savePresetTimeToNVS(channel, preset_time); // Save to persistent storage
       printf("Preset time set: CH%d = %dms\r\n", channel, preset_time);
       server.send(200, "text/plain", "Preset time saved");
     } else {
@@ -875,6 +1007,61 @@ void handleDeleteEvent() {
     server.send(400, "text/plain", "Event ID not provided.");
   }
 }
+
+void handleSetMainLock() {
+  if (server.hasArg("state")) {
+    String state = server.arg("state");
+    if (state == "lock") {
+      Main_Lock_State = true;
+      server.send(200, "text/plain", "Main controls locked");
+      printf("Main relay controls locked\r\n");
+    } else if (state == "unlock") {
+      Main_Lock_State = false;
+      server.send(200, "text/plain", "Main controls unlocked");
+      printf("Main relay controls unlocked\r\n");
+    } else {
+      server.send(400, "text/plain", "Invalid state parameter");
+    }
+  } else {
+    server.send(400, "text/plain", "Missing state parameter");
+  }
+}
+
+void handleGetInputStates() {
+  // Read current DIN pin states
+  DIN_Read_CHxs();
+  
+  String json = "{";
+  json += "\"locked\":" + String(Main_Lock_State ? "true" : "false") + ",";
+  json += "\"inputs\":[";
+  for (int i = 0; i < 8; i++) {
+    json += String(DIN_Flag[i] ? "1" : "0");
+    if (i < 7) {
+      json += ",";
+    }
+  }
+  json += "]}";
+  
+  server.send(200, "application/json", json);
+}
+
+void loadPresetTimesFromNVS() {
+  preferences.begin("relay-presets", false);
+  for (int i = 0; i < 8; i++) {
+    String key = "preset" + String(i + 1);
+    Preset_Pulse_Times[i] = preferences.getUInt(key.c_str(), 500); // Default 500ms
+  }
+  preferences.end();
+  printf("Preset times loaded from NVS\r\n");
+}
+
+void savePresetTimeToNVS(uint8_t channel, uint32_t time) {
+  preferences.begin("relay-presets", false);
+  String key = "preset" + String(channel);
+  preferences.putUInt(key.c_str(), time);
+  preferences.end();
+  printf("Preset time saved to NVS: CH%d = %dms\r\n", channel, time);
+}
 void WIFI_Init()
 {
 
@@ -894,6 +1081,9 @@ void WIFI_Init()
   sprintf(ipStr, "%d.%d.%d.%d", myIP[0], myIP[1], myIP[2], myIP[3]);
   printf("%s\r\n", ipStr);
 
+  // Load preset times from persistent storage
+  loadPresetTimesFromNVS();
+
   server.on("/", handleRoot);            // Relay Control page
   server.on("/getData", handleGetData);
   server.on("/Switch1", handleSwitch1);
@@ -909,6 +1099,8 @@ void WIFI_Init()
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
   server.on("/SetPresetTime", handleSetPresetTime);  // Set preset pulse time
   server.on("/GetPresetTimes", handleGetPresetTimes);  // Get preset pulse times
+  server.on("/SetMainLock", handleSetMainLock);  // Set main lock state
+  server.on("/GetInputStates", handleGetInputStates);  // Get input states and lock status
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);

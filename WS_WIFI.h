@@ -6,12 +6,16 @@
 #include <WebServer.h> 
 #include <WiFiClient.h>
 #include <WiFiAP.h>
+#include <Preferences.h>
 #include "WS_GPIO.h"
 #include "WS_Information.h"
 #include "WS_Relay.h"
 #include "WS_RTC.h"
+#include "WS_DIN.h"
 
 extern char ipStr[16];
+extern bool Main_Lock_State;  // Main relay controls lock state
+
 void handleRoot();
 void handleGetData();
 void handleSwitch(uint8_t ledNumber);
@@ -25,8 +29,12 @@ void handleSwitch6();
 void handleSwitch7();
 void handleSwitch8();
 void handlePulseRelay();
+void handleSetMainLock();
+void handleGetInputStates();
 void WIFI_Init();
 void WIFI_Loop();
 void WebTask(void *parameter);
+void loadPresetTimesFromNVS();
+void savePresetTimeToNVS(uint8_t channel, uint32_t time);
 
 bool parseData(const char* Text, datetime_t* dt, Status_adjustment* Relay, Repetition_event* cycleEvent) ;
