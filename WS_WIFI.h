@@ -14,7 +14,6 @@
 #include "WS_DIN.h"
 
 extern char ipStr[16];
-extern bool Main_Lock_State;  // Main relay controls lock state
 
 void handleRoot();
 void handleGetData();
@@ -31,7 +30,6 @@ void handleSwitch8();
 void handlePulseRelay();
 void handleSetChannelPulseSettings();
 void handleGetChannelPulseSettings();
-void handleSetMainLock();
 void handleGetInputStates();
 void WIFI_Init();
 void WIFI_Loop();
