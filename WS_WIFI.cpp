@@ -91,52 +91,16 @@ void handleRoot() {
     "        .button-container button:hover {" +
     "            background-color: #555;" +
     "        }" +
-    "        .preset-controls {" +
-    "            margin-bottom: 20px;" +
-    "            padding: 15px;" +
-    "            background-color: #f9f9f9;" +
-    "            border-radius: 5px;" +
-    "            border: 1px solid #ddd;" +
-    "        }" +
-    "        .preset-controls h3 {" +
-    "            margin-top: 0;" +
-    "            margin-bottom: 15px;" +
-    "            color: #333;" +
-    "        }" +
-    "        .lock-controls {" +
-    "            text-align: center;" +
-    "            margin-bottom: 15px;" +
-    "        }" +
-    "        .lock-controls button {" +
-    "            padding: 8px 16px;" +
-    "            background-color: #007bff;" +
-    "            color: white;" +
-    "            border: none;" +
-    "            border-radius: 4px;" +
-    "            cursor: pointer;" +
-    "            font-size: 14px;" +
-    "            margin: 0 5px;" +
-    "        }" +
-    "        .lock-controls button:hover {" +
-    "            background-color: #0056b3;" +
-    "        }" +
-    "        .preset-row {" +
-    "            display: flex;" +
-    "            align-items: center;" +
-    "            margin-bottom: 8px;" +
-    "        }" +
-    "        .preset-row label {" +
-    "            width: 50px;" +
-    "            margin-right: 10px;" +
-    "        }" +
-    "        .preset-row input {" +
-    "            width: 80px;" +
+    "        .pulse-count-input {" +
+    "            width: 60px;" +
     "            padding: 4px;" +
     "            border: 1px solid #ccc;" +
     "            border-radius: 3px;" +
-    "            margin-right: 10px;" +
+    "            margin-left: 10px;" +
+    "            margin-right: 5px;" +
+    "            text-align: center;" +
     "        }" +
-    "        .preset-row button {" +
+    "        .pulse-count-save {" +
     "            padding: 4px 8px;" +
     "            background-color: #28a745;" +
     "            color: white;" +
@@ -144,8 +108,9 @@ void handleRoot() {
     "            border-radius: 3px;" +
     "            cursor: pointer;" +
     "            font-size: 12px;" +
+    "            margin-left: 5px;" +
     "        }" +
-    "        .preset-row button:hover {" +
+    "        .pulse-count-save:hover {" +
     "            background-color: #218838;" +
     "        }" +
     "        nav {" +
@@ -212,49 +177,31 @@ void handleRoot() {
     "            xhttp.open('GET', url, true);" +
     "            xhttp.send();" +
     "        }" +
-    "        function lockPresets() {" +
-    "            var isLocked = true;" +
-    "            for (var i = 1; i <= 8; i++) {" +
-    "                var presetInput = document.getElementById('preset' + i);" +
-    "                if (presetInput) presetInput.disabled = isLocked;" +
-    "            }" +
-    "            document.getElementById('lockBtn').style.display = 'none';" +
-    "            document.getElementById('unlockBtn').style.display = 'inline-block';" +
-    "        }" +
-    "        function unlockPresets() {" +
-    "            var isLocked = false;" +
-    "            for (var i = 1; i <= 8; i++) {" +
-    "                var presetInput = document.getElementById('preset' + i);" +
-    "                if (presetInput) presetInput.disabled = isLocked;" +
-    "            }" +
-    "            document.getElementById('lockBtn').style.display = 'inline-block';" +
-    "            document.getElementById('unlockBtn').style.display = 'none';" +
-    "        }" +
-    "        function savePresetTime(channel) {" +
-    "            var presetInput = document.getElementById('preset' + channel);" +
-    "            var presetTime = parseInt(presetInput.value);" +
-    "            if (isNaN(presetTime) || presetTime < 10 || presetTime > 10000) {" +
-    "                alert('Please enter a valid preset time between 10 and 10000 milliseconds');" +
+    "        function savePulseCount(channel) {" +
+    "            var pulseInput = document.getElementById('pulseCount' + channel);" +
+    "            var pulseCount = parseInt(pulseInput.value);" +
+    "            if (isNaN(pulseCount) || pulseCount < 1 || pulseCount > 255) {" +
+    "                alert('Please enter a valid pulse count between 1 and 255');" +
     "                return;" +
     "            }" +
     "            var xhttp = new XMLHttpRequest();" +
     "            xhttp.onreadystatechange = function() {" +
     "                if (this.readyState == 4 && this.status == 200) {" +
-    "                    console.log('Preset time saved for channel ' + channel);" +
+    "                    console.log('Pulse count saved for channel ' + channel);" +
     "                }" +
     "            };" +
-    "            xhttp.open('GET', '/SetPresetTime?channel=' + channel + '&time=' + presetTime, true);" +
+    "            xhttp.open('GET', '/SetPulseCount?channel=' + channel + '&count=' + pulseCount, true);" +
     "            xhttp.send();" +
     "        }" +
-    "        function loadPresetTimes() {" +
+    "        function loadPulseCounts() {" +
     "            var xhr = new XMLHttpRequest();" +
-    "            xhr.open('GET', '/GetPresetTimes', true);" +
+    "            xhr.open('GET', '/GetPulseCounts', true);" +
     "            xhr.onreadystatechange = function() {" +
     "                if (xhr.readyState === 4 && xhr.status === 200) {" +
-    "                    var presetArray = JSON.parse(xhr.responseText);" +
-    "                    for (var i = 0; i < presetArray.length; i++) {" +
-    "                        var presetInput = document.getElementById('preset' + (i + 1));" +
-    "                        if (presetInput) presetInput.value = presetArray[i];" +
+    "                    var pulseArray = JSON.parse(xhr.responseText);" +
+    "                    for (var i = 0; i < pulseArray.length; i++) {" +
+    "                        var pulseInput = document.getElementById('pulseCount' + (i + 1));" +
+    "                        if (pulseInput) pulseInput.value = pulseArray[i];" +
     "                    }" +
     "                }" +
     "            };" +
@@ -298,7 +245,7 @@ void handleRoot() {
     "        }" +
     "        var refreshInterval = 200;" +                                     
     "        setInterval(updateData, refreshInterval);" +
-    "        window.onload = function() { loadPresetTimes(); };" +
+    "        window.onload = function() { loadPulseCounts(); };" +
     "    </script>" +
     "    <div class=\"header\">"+
     "        <h1>ESP32-S3-POE-ETH-8DI-8RO</h1>"+
@@ -308,59 +255,14 @@ void handleRoot() {
     "        <a href=\"/RTC_Event\" id=\"rtcEventLink\" class=\"rtcEventActive\">RTC Event</a>" + 
     "    </nav>" +
     "    <div class=\"container\">"+
-    "        <div class=\"preset-controls\">"+
-    "            <h3>Preset Pulse Times</h3>"+
-    "            <div class=\"lock-controls\">"+
-    "                <button id=\"lockBtn\" onclick=\"lockPresets()\">Lock</button>"+
-    "                <button id=\"unlockBtn\" onclick=\"unlockPresets()\" style=\"display: none;\">Unlock</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH1:</label>"+
-    "                <input type=\"number\" id=\"preset1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(1)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH2:</label>"+
-    "                <input type=\"number\" id=\"preset2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(2)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH3:</label>"+
-    "                <input type=\"number\" id=\"preset3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(3)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH4:</label>"+
-    "                <input type=\"number\" id=\"preset4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(4)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH5:</label>"+
-    "                <input type=\"number\" id=\"preset5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(5)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH6:</label>"+
-    "                <input type=\"number\" id=\"preset6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(6)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH7:</label>"+
-    "                <input type=\"number\" id=\"preset7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(7)\">Save</button>"+
-    "            </div>"+
-    "            <div class=\"preset-row\">"+
-    "                <label>CH8:</label>"+
-    "                <input type=\"number\" id=\"preset8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
-    "                <button onclick=\"savePresetTime(8)\">Save</button>"+
-    "            </div>"+
-    "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input1\">CH1</label>"+
     "            <input type=\"text\" id=\"ch1\" />"+
     "            <button value=\"Switch1\" id=\"btn1\" disabled onclick=\"ledSwitch(1)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time1\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(1)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount1\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(1)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input2\">CH2</label>"+
@@ -368,6 +270,8 @@ void handleRoot() {
     "            <button value=\"Switch2\" id=\"btn2\" disabled onclick=\"ledSwitch(2)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time2\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(2)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount2\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(2)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input3\">CH3</label>"+
@@ -375,6 +279,8 @@ void handleRoot() {
     "            <button value=\"Switch3\" id=\"btn3\" disabled onclick=\"ledSwitch(3)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time3\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(3)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount3\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(3)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input4\">CH4</label>"+
@@ -382,6 +288,8 @@ void handleRoot() {
     "            <button value=\"Switch4\" id=\"btn4\" disabled onclick=\"ledSwitch(4)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time4\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(4)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount4\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(4)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input5\">CH5</label>"+
@@ -389,6 +297,8 @@ void handleRoot() {
     "            <button value=\"Switch5\" id=\"btn5\" disabled onclick=\"ledSwitch(5)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time5\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(5)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount5\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(5)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input6\">CH6</label>"+
@@ -396,6 +306,8 @@ void handleRoot() {
     "            <button value=\"Switch6\" id=\"btn6\" disabled onclick=\"ledSwitch(6)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time6\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(6)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount6\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(6)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input7\">CH7</label>"+
@@ -403,6 +315,8 @@ void handleRoot() {
     "            <button value=\"Switch7\" id=\"btn7\" disabled onclick=\"ledSwitch(7)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time7\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(7)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount7\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(7)\">Save</button>"+
     "        </div>"+
     "        <div class=\"input-container\" style=\"margin-left: 20px;\">"+
     "            <label for=\"input8\">CH8</label>"+
@@ -410,6 +324,8 @@ void handleRoot() {
     "            <button value=\"Switch8\" id=\"btn8\" disabled onclick=\"ledSwitch(8)\">Toggle</button>"+
     "            <input type=\"number\" id=\"time8\" placeholder=\"ms\" min=\"10\" max=\"10000\" value=\"500\" />"+
     "            <button onclick=\"pulseRelay(8)\">Pulse</button>"+
+    "            <input type=\"number\" id=\"pulseCount8\" class=\"pulse-count-input\" placeholder=\"cycles\" min=\"1\" max=\"255\" value=\"2\" />"+
+    "            <button class=\"pulse-count-save\" onclick=\"savePulseCount(8)\">Save</button>"+
     "        </div>"+
     "        <div class=\"button-container\">"+
     "            <button value=\"AllOn\" id=\"btn9\" disabled onclick=\"ledSwitch(9)\">All On</button>"+
@@ -761,49 +677,46 @@ void handlePulseRelay() {
     uint8_t channel = server.arg("channel").toInt();
     uint32_t pulse_time;
     
-    // Use preset time if time parameter is not provided or is empty
+    // Use time parameter if provided, otherwise default to 500ms
     if (server.hasArg("time") && server.arg("time").length() > 0) {
       pulse_time = server.arg("time").toInt();
     } else {
-      // Use preset time for the channel (channel 1-8, array index 0-7)
-      if (channel >= 1 && channel <= 8) {
-        pulse_time = Preset_Pulse_Times[channel - 1];
-      } else {
-        server.send(400, "text/plain", "Invalid channel number");
-        return;
-      }
+      pulse_time = 500;  // Default pulse time
     }
     
-    printf("Pulse request: CH%d, time=%dms\r\n", channel, pulse_time);
-    Relay_Pulse(channel, pulse_time);
-    
-    server.send(200, "text/plain", "Pulse operation started");
+    if (channel >= 1 && channel <= 8) {
+      printf("Pulse request: CH%d, time=%dms, cycles=%d\r\n", channel, pulse_time, Relay_Pulse_Count_Get(channel));
+      Relay_Pulse(channel, pulse_time);
+      server.send(200, "text/plain", "Pulse operation started");
+    } else {
+      server.send(400, "text/plain", "Invalid channel number");
+    }
   } else {
     server.send(400, "text/plain", "Missing channel parameter");
   }
 }
 
-void handleSetPresetTime() {
-  if (server.hasArg("channel") && server.hasArg("time")) {
+void handleSetPulseCount() {
+  if (server.hasArg("channel") && server.hasArg("count")) {
     uint8_t channel = server.arg("channel").toInt();
-    uint32_t preset_time = server.arg("time").toInt();
+    uint8_t pulse_count = server.arg("count").toInt();
     
-    if (channel >= 1 && channel <= 8 && preset_time >= 10 && preset_time <= 10000) {
-      Preset_Pulse_Times[channel - 1] = preset_time;
-      printf("Preset time set: CH%d = %dms\r\n", channel, preset_time);
-      server.send(200, "text/plain", "Preset time saved");
+    if (channel >= 1 && channel <= 8 && pulse_count >= 1 && pulse_count <= 255) {
+      Relay_Pulse_Count_Set(channel, pulse_count);
+      printf("Pulse count set: CH%d = %d cycles\r\n", channel, pulse_count);
+      server.send(200, "text/plain", "Pulse count saved");
     } else {
-      server.send(400, "text/plain", "Invalid channel or time value");
+      server.send(400, "text/plain", "Invalid channel or pulse count value");
     }
   } else {
-    server.send(400, "text/plain", "Missing channel or time parameter");
+    server.send(400, "text/plain", "Missing channel or pulse count parameter");
   }
 }
 
-void handleGetPresetTimes() {
+void handleGetPulseCounts() {
   String json = "[";
   for (int i = 0; i < 8; i++) {
-    json += String(Preset_Pulse_Times[i]);
+    json += String(Relay_Pulse_Count_Get(i + 1));
     if (i < 7) {
       json += ",";
     }
@@ -907,8 +820,8 @@ void WIFI_Init()
   server.on("/AllOn"  , handleSwitch9);
   server.on("/AllOff" , handleSwitch0);
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
-  server.on("/SetPresetTime", handleSetPresetTime);  // Set preset pulse time
-  server.on("/GetPresetTimes", handleGetPresetTimes);  // Get preset pulse times
+  server.on("/SetPulseCount", handleSetPulseCount);  // Set pulse count for channel
+  server.on("/GetPulseCounts", handleGetPulseCounts);  // Get pulse counts for all channels
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);

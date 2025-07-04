@@ -42,7 +42,7 @@ typedef enum {
 } Status_adjustment;
 
 extern bool Relay_Flag[8];  // Relay current status flag
-extern uint32_t Preset_Pulse_Times[8];  // Preset pulse times for each channel (ms)
+extern uint8_t Pulse_Counts[8];  // Number of ON-OFF cycles for each channel
 
 void Relay_Init(void);
 bool Relay_Closs(uint8_t CHx);
@@ -56,3 +56,6 @@ void Relay_Immediate(uint8_t CHx, bool State, uint8_t Mode_Flag);
 void Relay_Immediate_CHxs(uint8_t PinState, uint8_t Mode_Flag);
 void Relay_Immediate_CHxn(Status_adjustment * Relay_n, uint8_t Mode_Flag);
 void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms);
+void Relay_Pulse_Count_Set(uint8_t CHx, uint8_t count);
+uint8_t Relay_Pulse_Count_Get(uint8_t CHx);
+void Relay_Pulse_Settings_Init(void);

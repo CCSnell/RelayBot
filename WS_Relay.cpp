@@ -1,7 +1,9 @@
 #include "WS_Relay.h"
+#include <Preferences.h>
 
 bool Failure_Flag = 0;
-uint32_t Preset_Pulse_Times[8] = {500, 500, 500, 500, 500, 500, 500, 500};  // Default 500ms for all channels
+uint8_t Pulse_Counts[8] = {2, 2, 2, 2, 2, 2, 2, 2};  // Default 2 ON-OFF cycles for all channels
+Preferences pulse_prefs;
 /*************************************************************  Relay I/O  *************************************************************/
 bool Relay_Open(uint8_t CHx)
 {
@@ -67,6 +69,7 @@ void RelayFailTask(void *parameter) {
 void Relay_Init(void)
 {
   TCA9554PWR_Init(0x00, 0x00);
+  Relay_Pulse_Settings_Init();  // Initialize pulse count settings
   xTaskCreatePinnedToCore(
     RelayFailTask,    
     "RelayFailTask",   
@@ -282,11 +285,12 @@ void RelayPulseTask(void *parameter) {
   PulseTaskParams *params = (PulseTaskParams *)parameter;
   uint8_t CHx = params->CHx;
   uint32_t pulse_time_ms = params->pulse_time_ms;
+  uint8_t pulse_count = Pulse_Counts[CHx-1];  // Get pulse count for this channel
   
-  printf("Starting pulse operation for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
+  printf("Starting pulse operation for CH%d with %dms timing, %d cycles\r\n", CHx, pulse_time_ms, pulse_count);
   
-  // Perform two ON-OFF cycles
-  for (int cycle = 0; cycle < 2; cycle++) {
+  // Perform configured number of ON-OFF cycles
+  for (int cycle = 0; cycle < pulse_count; cycle++) {
     // Turn relay ON
     if (Relay_CHx(CHx, true)) {
       Relay_Flag[CHx-1] = true;
@@ -302,7 +306,7 @@ void RelayPulseTask(void *parameter) {
     vTaskDelay(pdMS_TO_TICKS(pulse_time_ms));
   }
   
-  printf("Pulse operation completed for CH%d\r\n", CHx);
+  printf("Pulse operation completed for CH%d (%d cycles)\r\n", CHx, pulse_count);
   Buzzer_Open_Time(200, 0);
   
   // Free the parameter memory and delete the task
@@ -356,4 +360,51 @@ void Relay_Pulse(uint8_t CHx, uint32_t pulse_time_ms)
   } else {
     printf("Pulse task created for CH%d with %dms timing\r\n", CHx, pulse_time_ms);
   }
+}
+
+// Initialize pulse count settings from non-volatile storage
+void Relay_Pulse_Settings_Init(void) {
+  pulse_prefs.begin("pulse_settings", false);
+  
+  // Load pulse counts from preferences, default to 2 if not found
+  for (int i = 0; i < 8; i++) {
+    String key = "pulse_count_" + String(i + 1);
+    Pulse_Counts[i] = pulse_prefs.getUChar(key.c_str(), 2);
+    printf("Loaded pulse count for CH%d: %d cycles\r\n", i + 1, Pulse_Counts[i]);
+  }
+  
+  pulse_prefs.end();
+}
+
+// Set pulse count for a specific channel and save to non-volatile storage
+void Relay_Pulse_Count_Set(uint8_t CHx, uint8_t count) {
+  if (CHx < 1 || CHx > 8) {
+    printf("Invalid channel number: %d\r\n", CHx);
+    return;
+  }
+  
+  if (count < 1 || count > 255) {
+    printf("Invalid pulse count: %d (must be 1-255)\r\n", count);
+    return;
+  }
+  
+  Pulse_Counts[CHx - 1] = count;
+  
+  // Save to non-volatile storage
+  pulse_prefs.begin("pulse_settings", false);
+  String key = "pulse_count_" + String(CHx);
+  pulse_prefs.putUChar(key.c_str(), count);
+  pulse_prefs.end();
+  
+  printf("Pulse count set for CH%d: %d cycles\r\n", CHx, count);
+}
+
+// Get pulse count for a specific channel
+uint8_t Relay_Pulse_Count_Get(uint8_t CHx) {
+  if (CHx < 1 || CHx > 8) {
+    printf("Invalid channel number: %d\r\n", CHx);
+    return 2; // Default value
+  }
+  
+  return Pulse_Counts[CHx - 1];
 }
