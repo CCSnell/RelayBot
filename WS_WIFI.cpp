@@ -236,12 +236,12 @@ void handleRoot() {
     "            };" +
     "            xhr.send();" +
     "        }" +
-    "        function updateData() {"
-    "            var xhr = new XMLHttpRequest();"
-    "            xhr.open('GET', '/getData', true);"
-    "            xhr.onreadystatechange = function() {"
-    "              if (xhr.readyState === 4 && xhr.status === 200) {"
-    "                var dataArray = JSON.parse(xhr.responseText);"
+    "        function updateData() {" +
+    "            var xhr = new XMLHttpRequest();" +
+    "            xhr.open('GET', '/getData', true);" +
+    "            xhr.onreadystatechange = function() {" +
+    "              if (xhr.readyState === 4 && xhr.status === 200) {" +
+    "                var dataArray = JSON.parse(xhr.responseText);" +
     "                document.getElementById('ch1').value = dataArray[0];" +
     "                document.getElementById('ch2').value = dataArray[1];" +
     "                document.getElementById('ch3').value = dataArray[2];" +
@@ -862,23 +862,6 @@ void handleDeleteEvent() {
   }
 }
 
-void handleGetInputStates() {
-  // Read current DIN pin states
-  DIN_Read_CHxs();
-  
-  String json = "{";
-  json += "\"inputs\":[";
-  for (int i = 0; i < 8; i++) {
-    json += String(DIN_Flag[i] ? "1" : "0");
-    if (i < 7) {
-      json += ",";
-    }
-  }
-  json += "]}";
-  
-  server.send(200, "application/json", json);
-}
-
 void loadChannelPulseSettingsFromNVS() {
   preferences.begin("relay-settings", false);
   for (int i = 0; i < 8; i++) {
@@ -948,7 +931,6 @@ void WIFI_Init()
   server.on("/PulseRelay", handlePulseRelay);  // Pulse relay endpoint
   server.on("/SetChannelPulseSettings", handleSetChannelPulseSettings);  // Set channel pulse settings
   server.on("/GetChannelPulseSettings", handleGetChannelPulseSettings);  // Get channel pulse settings
-  server.on("/GetInputStates", handleGetInputStates);  // Get input states
   
   server.on("/RTC_Event", handleRTCPage);      // RTC Event page
   server.on("/NewEvent" , handleNewEvent);
